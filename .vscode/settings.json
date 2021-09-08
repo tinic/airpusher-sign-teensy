@@ -1,0 +1,8 @@
+{
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE": "../cmake/arm-gcc-toolchain.cmake",
+        "TESTING" : true,
+        "CMAKE_BUILD_TYPE" : "Debug"
+    },
+    "C_Cpp.default.configurationProvider": "go2sh.cmake-integration"
+}
