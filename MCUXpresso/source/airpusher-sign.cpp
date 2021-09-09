@@ -113,7 +113,7 @@ const LedsPWMDMA::Cfg LedsPWMDMA::cfg[stripCount] = {
 };
 
 auto DMA_IRQHandler = [] (size_t c) {
-	DMA0->CINT = LedsPWMDMA::cfg[c].chn; LedsPWMDMA::cfg[c].pwm->MCTRL &= PWM_MCTRL_RUN(~(1UL << LedsPWMDMA::cfg[c].sub));
+	DMA0->CINT = LedsPWMDMA::cfg[c].chn; LedsPWMDMA::cfg[c].pwm->MCTRL &= ~PWM_MCTRL_RUN(1UL << LedsPWMDMA::cfg[c].sub);
 };
 
 void LedsPWMDMA::DMA0_IRQHandler() { DMA_IRQHandler(0); }
@@ -138,6 +138,8 @@ void LedsPWMDMA::transfer() {
 	// Check LedsPWMDMA::cfg for (non-)matches
 	PWM1->MCTRL |= PWM_MCTRL_RUN(15);
 	PWM2->MCTRL |= PWM_MCTRL_RUN(15);
+	//PWM3 is reachable on Teensy 4.1 by EMC_31 (Pin 29) and EMC_32 (Pin 28)
+	//PWM3->MCTRL |= PWM_MCTRL_RUN(15);
 	PWM4->MCTRL |= PWM_MCTRL_RUN(15);
 
 	dmaInFlight = true;
