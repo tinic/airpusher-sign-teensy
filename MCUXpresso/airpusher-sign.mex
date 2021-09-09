@@ -205,12 +205,22 @@
             </clock_configuration>
          </clock_configurations>
       </clocks>
-      <dcdx name="DCDx" version="3.0" enabled="false" update_project_code="true">
-         <generated_project_files/>
+      <dcdx name="DCDx" version="3.0" enabled="true" update_project_code="true">
+         <generated_project_files>
+            <file path="board/dcd.c" update_enabled="true"/>
+            <file path="board/dcd.h" update_enabled="true"/>
+         </generated_project_files>
          <dcdx_profile>
-            <processor_version>N/A</processor_version>
+            <processor_version>10.0.0</processor_version>
+            <output_format>c_array</output_format>
          </dcdx_profile>
-         <dcdx_configurations/>
+         <dcdx_configurations>
+            <dcdx_configuration name="Device_configuration">
+               <description></description>
+               <options/>
+               <command_groups/>
+            </dcdx_configuration>
+         </dcdx_configurations>
       </dcdx>
       <periphs name="Peripherals" version="10.0" enabled="true" update_project_code="true">
          <generated_project_files>
