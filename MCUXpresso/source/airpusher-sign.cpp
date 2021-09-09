@@ -61,7 +61,7 @@ public:
 		uint8_t  abx;
 		uint32_t dmamux;
 		uint32_t ctlmux;
-		uint32_t ctlval;
+		uint32_t altmode;
 	};
 
 	static const Cfg cfg[stripCount];
@@ -79,9 +79,11 @@ private:
 
     static uint8_t pwmBuffer[stripBytes * stripCount * 8] __attribute__ ((aligned(32)));
 
+    static_assert((1.25e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT)) <= 255.0);
     static constexpr uint8_t cmp_thl = uint8_t(1.25e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
     static constexpr uint8_t cmp_t0h = uint8_t(0.30e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
     static constexpr uint8_t cmp_t1h = uint8_t(0.75e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
+
 
     bool dmaInFlight = false;
 
@@ -92,14 +94,22 @@ private:
 uint8_t LedsPWMDMA::pwmBuffer[stripBytes * stripCount * 8] __attribute__ ((aligned(32)));
 
 const LedsPWMDMA::Cfg LedsPWMDMA::cfg[stripCount] = {
-	// chn,  pwm, sub, abx, dmamux,                          ctlmux,                               ctlval
+	//
+	// Check IMXRT1062 reference manual for possible matches. Things are more constrained than they seem.
+	// Main rules: - An individual PWM module can not use more than 3 distinct abx values.
+	//             - PWM module + submodule combos have to be unique.
+	// Guide: - Look for desired SW_MUX_CTL_PAD_GPIO_XXX pin in reference,
+	//        - Find FLEXPWMxxxx ALT config and apply rules above to see if it will work.
+	//
+	// chn,  pwm, sub, abx, dmamux,                          ctlmux,                               altmode
 	{    0, PWM2,   0,   0, kDmaRequestMuxFlexPWM2ValueSub0, kIOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_06,   1     }, // Teensy 4.0 Pin 4
 	{    1, PWM1,   3,   0, kDmaRequestMuxFlexPWM1ValueSub3, kIOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00,    6     }, // Teensy 4.0 Pin 8
 	{    2, PWM2,   1,   1, kDmaRequestMuxFlexPWM2ValueSub1, kIOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_08,   1     }, // Teensy 4.0 Pin 5
-//	{    2, PWM1,   2,   2, kDmaRequestMuxFlexPWM1ValueSub2, kIOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_12, 4     }, // Teensy 4.0 Pin 24 / A10, underneath
+//	{    2, PWM1,   2,   2, kDmaRequestMuxFlexPWM1ValueSub2, kIOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B0_12, 4     }, // Teensy 4.0 Pin 24 / A10, underside
 	{    3, PWM4,   0,   0, kDmaRequestMuxFlexPWM4ValueSub0, kIOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_08, 1     }, // Teensy 4.0 Pin 22 / A8
 	{    4, PWM4,   1,   0, kDmaRequestMuxFlexPWM4ValueSub1, kIOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_09, 1     }, // Teensy 4.0 Pin 23 / A9
 	{    5, PWM2,   2,   1, kDmaRequestMuxFlexPWM2ValueSub2, kIOMUXC_SW_MUX_CTL_PAD_GPIO_B0_11,    2     }  // Teensy 4.0 Pin 9
+	// Update transfer(), setIRQVectors() & DMAx_IRQHandler() if more entries are added
 };
 
 auto DMA_IRQHandler = [] (size_t c) {
@@ -120,6 +130,17 @@ void LedsPWMDMA::setIRQVectors() {
 	NVIC_SetVector(IRQn_Type(DMA0_DMA16_IRQn + cfg[3].chn), uint32_t(DMA3_IRQHandler));
 	NVIC_SetVector(IRQn_Type(DMA0_DMA16_IRQn + cfg[4].chn), uint32_t(DMA4_IRQHandler));
 	NVIC_SetVector(IRQn_Type(DMA0_DMA16_IRQn + cfg[5].chn), uint32_t(DMA5_IRQHandler));
+}
+
+void LedsPWMDMA::transfer() {
+	waitForTransfer();
+
+	// Check LedsPWMDMA::cfg for (non-)matches
+	PWM1->MCTRL |= PWM_MCTRL_RUN(15);
+	PWM2->MCTRL |= PWM_MCTRL_RUN(15);
+	PWM4->MCTRL |= PWM_MCTRL_RUN(15);
+
+	dmaInFlight = true;
 }
 
 LedsPWMDMA &LedsPWMDMA::instance() {
@@ -160,23 +181,13 @@ void LedsPWMDMA::waitForTransfer() {
 	}
 }
 
-void LedsPWMDMA::transfer() {
-	waitForTransfer();
-
-	PWM1->MCTRL |= PWM_MCTRL_RUN(15);
-	PWM2->MCTRL |= PWM_MCTRL_RUN(15);
-	PWM4->MCTRL |= PWM_MCTRL_RUN(15);
-
-	dmaInFlight = true;
-}
-
 void LedsPWMDMA::init() {
 
 	memset(pwmBuffer, 0, sizeof(pwmBuffer));
 
 	// Mux PWM pins
 	for (size_t c = 0; c < stripCount; c++) {
-		IOMUXC->SW_MUX_CTL_PAD[cfg[c].ctlmux] = cfg[c].ctlval;
+		IOMUXC->SW_MUX_CTL_PAD[cfg[c].ctlmux] = cfg[c].altmode;
 	}
 
 	auto configPWMModule = [=](volatile PWM_Type *pwm, uint8_t sub, uint8_t abx) {
