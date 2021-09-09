@@ -61,13 +61,15 @@ set(DEFINITIONS
     SDK_DEBUGCONSOLE_UART 
     __MCUXPRESSO 
     __USE_CMSIS
-    __NEWLIB__)
+    __NEWLIB__
+    __IMXRT1062__)
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
 set(DUMP_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.S)
 
 include_directories(.)
+include_directories()
 include_directories(MCUXpresso/board)
 include_directories(MCUXpresso/source)
 include_directories(MCUXpresso/CMSIS_driver)
