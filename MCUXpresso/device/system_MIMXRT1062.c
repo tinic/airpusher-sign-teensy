@@ -69,6 +69,7 @@ uint32_t SystemCoreClock = DEFAULT_SYSTEM_CLOCK;
    ---------------------------------------------------------------------------- */
 
 void SystemInit (void) {
+
 #if ((__FPU_PRESENT == 1) && (__FPU_USED == 1))
   SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));    /* set CP10, CP11 Full Access in Secure mode */
   #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
@@ -122,6 +123,7 @@ void SystemInit (void) {
         SCB_EnableICache();
     }
 #endif
+
 #if defined(__DCACHE_PRESENT) && __DCACHE_PRESENT
     if (SCB_CCR_DC_Msk != (SCB_CCR_DC_Msk & SCB->CCR)) {
         SCB_EnableDCache();
@@ -129,6 +131,7 @@ void SystemInit (void) {
 #endif
 
   SystemInitHook();
+
 }
 
 /* ----------------------------------------------------------------------------
