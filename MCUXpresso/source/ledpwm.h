@@ -53,9 +53,10 @@ public:
   static const Cfg cfg[stripCount];
 
 private:
+  	static constexpr size_t pageCount = 2;
 	static constexpr size_t frontTailPadding = 64;
 
-    static uint16_t pwmBuffer[stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
+    static uint16_t pwmBuffer[pageCount][stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
 
     static constexpr uint8_t cmp_thl = uint8_t(1.25e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
     static constexpr uint8_t cmp_t0h = uint8_t(0.30e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
@@ -64,6 +65,7 @@ private:
     void resetHardware();
     void init();
     bool initialized = false;
+    size_t currentPage = 0;
 };
 
 #endif  // #ifndef _LED_PWM_H_

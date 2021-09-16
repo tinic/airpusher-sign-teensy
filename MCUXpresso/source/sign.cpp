@@ -22,6 +22,7 @@ void sign_entry() {
         	// NOP
         }
         if (Timeline::instance().CheckEffectReadyAndClear()) {
+            LedsPWMDMA::instance().transfer(); // Start a background transfer
         	//PRINTF("0!!!!\n\r");
             memset(stripBytes, brightness++, 1024);
             for (size_t c = 0; c < 6; c++) {
@@ -29,8 +30,6 @@ void sign_entry() {
                 LedsPWMDMA::instance().prepare(c, stripBytes);
             }
         	//PRINTF("2!!!!\n\r");
-            LedsPWMDMA::instance().transfer();
-
         	Timeline::instance().ProcessEffect();
             if (Timeline::instance().TopEffect().Valid()) {
                 Timeline::instance().TopEffect().Calc();

@@ -45,7 +45,7 @@ static inline void arm_dcache_flush_delete(void *addr, uint32_t size)
     __enable_irq();
 }
 
-uint16_t LedsPWMDMA::pwmBuffer[stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
+uint16_t LedsPWMDMA::pwmBuffer[pageCount][stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
 
 const LedsPWMDMA::Cfg LedsPWMDMA::cfg[stripCount] = {
   //
@@ -88,12 +88,17 @@ extern "C" __attribute__((used)) void DMA5_DMA21_IRQHandler() { DMA_IRQHandler(5
 
 void LedsPWMDMA::transfer() {
     __disable_irq();
-    for (size_t c = 0; c < stripCount; c++) {
-        DMA0->SERQ = cfg[c].chn;
-    }
 
     for (size_t c = 0; c < stripCount; c++) {
         IOMUXC->SW_MUX_CTL_PAD[cfg[c].ctlmux] = IOMUXC_SW_MUX_CTL_PAD_MUX_MODE(cfg[c].pwmmode);
+    }
+
+    for (size_t c = 0; c < stripCount; c++) {
+    	DMA0->TCD[cfg[c].chn].SADDR = DMA_SADDR_SADDR(&pwmBuffer[currentPage][c][0]);
+    }
+
+    for (size_t c = 0; c < stripCount; c++) {
+        DMA0->SERQ = cfg[c].chn;
     }
 
     PWM1->MCTRL |= PWM_MCTRL_RUN(15);
@@ -102,6 +107,8 @@ void LedsPWMDMA::transfer() {
     //PWM3->MCTRL |= PWM_MCTRL_RUN(15);
     PWM4->MCTRL |= PWM_MCTRL_RUN(15);
     __enable_irq();
+
+    currentPage %= 1;
 }
 
 LedsPWMDMA &LedsPWMDMA::instance() {
@@ -115,7 +122,7 @@ LedsPWMDMA &LedsPWMDMA::instance() {
 
 void LedsPWMDMA::prepare(size_t strip, const uint8_t *data) {
     const uint8_t *src = data;
-    uint16_t *dst = &pwmBuffer[strip][0];
+    uint16_t *dst = &pwmBuffer[currentPage][strip][0];
 
     for (size_t c = 0; c < frontTailPadding/2; c++) {
     	*dst++ = 0;
@@ -140,7 +147,7 @@ void LedsPWMDMA::prepare(size_t strip, const uint8_t *data) {
     	*dst++ = 0;
     }
 
-    arm_dcache_flush_delete(&pwmBuffer[strip][0], sizeof(pwmBuffer[0]));
+    arm_dcache_flush_delete(&pwmBuffer[currentPage][strip][0], sizeof(pwmBuffer[0][0]));
 }
 
 void LedsPWMDMA::resetHardware() {
@@ -245,10 +252,10 @@ void LedsPWMDMA::init() {
         memset(&DMA0->TCD[chn], 0, sizeof(DMA0->TCD[0]));
     };
 
-    auto setDMATCD = [] (size_t c, size_t chn, volatile uint16_t *dst) {
-        size_t len = sizeof(pwmBuffer[0]);
+    auto setDMATCD = [] (size_t c, size_t chn, size_t page, volatile uint16_t *dst) {
+        size_t len = sizeof(pwmBuffer[0][0]);
 
-        DMA0->TCD[chn].SADDR            = DMA_SADDR_SADDR(&pwmBuffer[c][0]);
+        DMA0->TCD[chn].SADDR            = DMA_SADDR_SADDR(&pwmBuffer[page][c][0]);
         DMA0->TCD[chn].DADDR            = DMA_DADDR_DADDR(dst);
 
         DMA0->TCD[chn].ATTR             = DMA_ATTR_SSIZE(1) | DMA_ATTR_DSIZE(1);
@@ -274,13 +281,13 @@ void LedsPWMDMA::init() {
     for (size_t c = 0; c < stripCount; c++) {
         switch (cfg[c].abx) {
             case 0: {
-                setDMATCD(c, cfg[c].chn, &((volatile PWM_Type*)cfg[c].pwm)->SM[cfg[c].sub].VAL3);
+                setDMATCD(c, cfg[c].chn, currentPage, &((volatile PWM_Type*)cfg[c].pwm)->SM[cfg[c].sub].VAL3);
             } break;
             case 1: {
-                setDMATCD(c, cfg[c].chn, &((volatile PWM_Type*)cfg[c].pwm)->SM[cfg[c].sub].VAL5);
+                setDMATCD(c, cfg[c].chn, currentPage, &((volatile PWM_Type*)cfg[c].pwm)->SM[cfg[c].sub].VAL5);
             } break;
             case 2: {
-                setDMATCD(c, cfg[c].chn, &((volatile PWM_Type*)cfg[c].pwm)->SM[cfg[c].sub].VAL0);
+                setDMATCD(c, cfg[c].chn, currentPage, &((volatile PWM_Type*)cfg[c].pwm)->SM[cfg[c].sub].VAL0);
             } break;
         }
 
