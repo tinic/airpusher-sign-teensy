@@ -289,6 +289,7 @@ void BOARD_ConfigMPU(void)
      * mpu_armv7.h.
      */
 
+// NOTE: TEENSY SPECIFIC -------------------------------------------------------------------
 #if 1 // TEENSY 4.0
     MPU->RBAR = ARM_MPU_RBAR(0, 0x00000000U);
     MPU->RASR = ARM_MPU_RASR(1, ARM_MPU_AP_NONE, 0, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_4GB);
