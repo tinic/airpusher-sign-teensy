@@ -1,0 +1,69 @@
+/*
+Copyright 2021 Tinic Uro
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+#ifndef _LED_PWM_H_
+#define _LED_PWM_H_
+
+#include <stdint.h>
+#include <stdlib.h>
+
+#include "clock_config.h"
+
+class LedsPWMDMA {
+public:
+	static constexpr size_t maxLeds = 134;
+	static constexpr size_t ledBytes = 6;
+	static constexpr size_t stripCount = 6;
+	static constexpr size_t stripBytes = (maxLeds * ledBytes + 31) & (~31);
+
+    static LedsPWMDMA &instance();
+
+    void prepare(size_t strip, const uint8_t *data);
+    void transfer();
+
+  struct Cfg {
+      uint8_t  chn;
+      volatile void *pwm;
+      uint8_t  sub;
+      uint8_t  abx;
+      uint32_t dmamux;
+      uint32_t ctlmux;
+      uint32_t pwmmode;
+  };
+
+  static const Cfg cfg[stripCount];
+
+private:
+	static constexpr size_t frontTailPadding = 64;
+
+    static uint16_t pwmBuffer[stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
+
+    static constexpr uint8_t cmp_thl = uint8_t(1.25e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
+    static constexpr uint8_t cmp_t0h = uint8_t(0.30e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
+    static constexpr uint8_t cmp_t1h = uint8_t(0.75e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
+
+    void resetHardware();
+    void init();
+    bool initialized = false;
+};
+
+#endif  // #ifndef _LED_PWM_H_

@@ -262,7 +262,7 @@ typedef enum IRQn {
  */
 
 #define __MPU_PRESENT                  1         /**< Defines if an MPU is present or not */
-#define __ICACHE_PRESENT               1         /**< Defines if an ICACHE is present or not */
+#define __ICACHE_PRESENT               0         /**< Defines if an ICACHE is present or not */
 #define __DCACHE_PRESENT               1         /**< Defines if an DCACHE is present or not */
 #define __DTCM_PRESENT                 1         /**< Defines if an DTCM is present or not */
 #define __NVIC_PRIO_BITS               4         /**< Number of priority bits implemented in the NVIC */
