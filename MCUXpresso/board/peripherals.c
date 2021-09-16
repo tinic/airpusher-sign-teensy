@@ -68,11 +68,97 @@ static void NVIC_init(void) {
 } */
 
 /***********************************************************************************************************************
+ * USB1 initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'USB1'
+- type: 'usb'
+- mode: 'device'
+- custom_name_enabled: 'false'
+- type_id: 'usb_cbf31fb9a3cef21890d93e737c3d2690'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'USB1'
+- config_sets:
+  - deviceSetting:
+    - vendor_id: '0x16C0'
+    - product_id: '0x0483'
+    - manufacturer_string: 'Teensyduino'
+    - product_string: 'USB Serial'
+    - self_powered: 'false'
+    - max_power: '500'
+    - interfaces:
+      - 0:
+        - interface_class: 'kClassCic'
+        - setting_cic:
+          - interface_name: 'CIC VCOM'
+          - subclass: 'kSubclassAcm'
+          - protocol: 'kProtocolNone'
+          - implementation: 'kImplementationCicVcom'
+          - endpoints_settings:
+            - 0:
+              - setting_name: 'USBSerialCIC'
+              - endpoints:
+                - 0:
+                  - direction: 'kIn'
+                  - transfer_type: 'kInterrupt'
+                  - synchronization: 'kNoSynchronization'
+                  - usage: 'kData'
+                  - max_packet_size_fs: 'k16'
+                  - polling_interval_fs: '8'
+                  - max_packet_size_hs: 'k16'
+                  - polling_interval_hs: '7'
+                  - bRefresh: '0'
+                  - bSynchAddress: 'NoSynchronization'
+          - data_interface_count: '1'
+      - 1:
+        - interface_class: 'kClassDic'
+        - setting_dic:
+          - interface_name: 'DIC VCOM'
+          - subclass: 'kSubclassNone'
+          - protocol: 'kProtocolNone'
+          - implementation: 'kImplementationDicVcom'
+          - endpoints_settings:
+            - 0:
+              - setting_name: 'USBSerialDIC'
+              - endpoints:
+                - 0:
+                  - direction: 'kIn'
+                  - transfer_type: 'kBulk'
+                  - synchronization: 'kNoSynchronization'
+                  - usage: 'kData'
+                  - max_packet_size_fs: 'k64'
+                  - polling_interval_fs: '0'
+                  - max_packet_size_hs: 'k512'
+                  - polling_interval_hs: '0'
+                  - bRefresh: '0'
+                  - bSynchAddress: 'NoSynchronization'
+                - 1:
+                  - direction: 'kOut'
+                  - transfer_type: 'kBulk'
+                  - synchronization: 'kNoSynchronization'
+                  - usage: 'kData'
+                  - max_packet_size_fs: 'k64'
+                  - polling_interval_fs: '0'
+                  - max_packet_size_hs: 'k512'
+                  - polling_interval_hs: '0'
+                  - bRefresh: '0'
+                  - bSynchAddress: 'NoSynchronization'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+
+static void USB1_init(void) {
+  USB_DeviceApplicationInit();
+}
+
+/***********************************************************************************************************************
  * Initialization functions
  **********************************************************************************************************************/
 void BOARD_InitPeripherals(void)
 {
   /* Initialize components */
+  USB1_init();
 }
 
 /***********************************************************************************************************************
