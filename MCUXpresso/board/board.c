@@ -231,6 +231,9 @@ status_t BOARD_Camera_I2C_ReceiveSCCB(
 }
 #endif /* SDK_I2C_BASED_COMPONENT_USED */
 
+extern unsigned int __bss_section_table;
+extern unsigned int __bss_section_table_end;
+
 /* MPU configuration. */
 void BOARD_ConfigMPU(void)
 {
@@ -286,12 +289,45 @@ void BOARD_ConfigMPU(void)
      * mpu_armv7.h.
      */
 
+#if 1 // TEENSY 4.0
+    MPU->RBAR = ARM_MPU_RBAR(0, 0x00000000U);
+    MPU->RASR = ARM_MPU_RASR(1, ARM_MPU_AP_NONE, 0, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_4GB);
+
+    MPU->RBAR = ARM_MPU_RBAR(1, 0x00000000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 1, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_512KB);
+
+    MPU->RBAR = ARM_MPU_RBAR(2, 0x00000000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_NONE, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_32B);
+
+    MPU->RBAR = ARM_MPU_RBAR(3, 0x00200000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_RO, 0, 0, 1, 0, 0, ARM_MPU_REGION_SIZE_128KB);
+
+    MPU->RBAR = ARM_MPU_RBAR(4, 0x20000000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_RO, 1, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_512KB);
+
+    MPU->RBAR = ARM_MPU_RBAR(5, ((uint32_t)&__bss_section_table_end));
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_NONE, 0, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_32B);
+
+    MPU->RBAR = ARM_MPU_RBAR(6, 0x20200000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 1, 1, 1, 0, 0, ARM_MPU_REGION_SIZE_1MB);
+
+    MPU->RBAR = ARM_MPU_RBAR(7, 0x40000000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_64MB);
+
+    MPU->RBAR = ARM_MPU_RBAR(8, 0x60000000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_RO, 1, 1, 1, 0, 0, ARM_MPU_REGION_SIZE_16MB);
+
+    MPU->RBAR = ARM_MPU_RBAR(9, 0x70000000U);
+    MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 1, 1, 1, 0, 0, ARM_MPU_REGION_SIZE_16MB);
+
+#else  // #if 1 // TEENSY
     /*
      * Add default region to deny access to whole address space to workaround speculative prefetch.
      * Refer to Arm errata 1013783-B for more details.
      *
      */
     /* Region 0 setting: Instruction access disabled, No data access permission. */
+
     MPU->RBAR = ARM_MPU_RBAR(0, 0x00000000U);
     MPU->RASR = ARM_MPU_RASR(1, ARM_MPU_AP_NONE, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_4GB);
 
@@ -340,6 +376,7 @@ void BOARD_ConfigMPU(void)
     /* Region 12 setting: Memory with Device type, not shareable, non-cacheable */
     MPU->RBAR = ARM_MPU_RBAR(12, 0x42000000);
     MPU->RASR = ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_1MB);
+#endif  // #if 1 // TEENSY
 
     /* Enable MPU */
     ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);
