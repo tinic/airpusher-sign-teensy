@@ -658,9 +658,9 @@ __attribute__ ((naked, section(".after_vectors.reset")))
 void ResetISR(void) {
 
 	// NOTE: TEENSY SPECIFIC -------------------------------------------------------------------
-    IOMUXC_GPR->GPR17 = IOMUXC_GPR_GPR17_FLEXRAM_BANK_CFG(0xAAAAAAAA);
-    IOMUXC_GPR->GPR16 = 0x00200007;
-    IOMUXC_GPR->GPR14 = 0x00AA0000;
+    IOMUXC_GPR->GPR17 = 0xAAAAAAAA; // IOMUXC_GPR_GPR17_FLEXRAM_BANK_CFG(0xAAAAAAAA);
+    IOMUXC_GPR->GPR16 = 0x00000007; // IOMUXC_GPR_GPR16_INIT_ITCM_EN(1) | IOMUXC_GPR_GPR16_INIT_DTCM_EN(1) | IOMUXC_GPR_GPR16_FLEXRAM_BANK_CFG_SEL(1)
+    IOMUXC_GPR->GPR14 = 0x00AA0000; // IOMUXC_GPR_GPR14_CM7_CFGITCMSZ(0xA) | IOMUXC_GPR_GPR14_CM7_CFGDTCMSZ(0xA)
 
     // Disable interrupts
     __asm volatile ("cpsid i");

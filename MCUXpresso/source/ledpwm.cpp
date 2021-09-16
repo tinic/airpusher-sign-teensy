@@ -106,7 +106,7 @@ LedsPWMDMA &LedsPWMDMA::instance() {
     return ledsPWMDMA;
 }
 
-void __attribute__((section("RamFunction"))) LedsPWMDMA::prepare(size_t strip, const uint8_t *data, size_t len) {
+void LedsPWMDMA::prepare(size_t strip, const uint8_t *data, size_t len) {
     const uint8_t *src = data;
     uint16_t *dst = &pwmBuffer[currentPage][strip][0];
     uint16_t *stt = dst;
