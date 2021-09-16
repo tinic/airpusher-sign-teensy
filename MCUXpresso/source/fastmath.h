@@ -27,6 +27,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdint.h>
 #include <math.h>
 
+#include "./gcem/gcem.hpp"
+
 __attribute__ ((hot, optimize("Os"), flatten))
 static inline float fast_rcp(const float x ) {
     // No std::bitcast yet
@@ -82,8 +84,12 @@ static inline float fracf(float v) { // same as fmodf(v, 1.0f)
 }
 
 __attribute__ ((hot, optimize("Os"), flatten))
-static float constexpr_pow(const float x, const float p) {
+static constexpr float constexpr_pow(const float x, const float p) {
+#ifdef GCEM_VERSION_MAJOR
+	return gcem::pow(x, p);
+#else // #ifdef GCEM_VERSION_MAJOR
     return ::exp2f(p * ::log2f(x));
+#endif  // #ifdef GCEM_VERSION_MAJOR
 }
 
 #endif  // #ifndef FASTMATH_H_

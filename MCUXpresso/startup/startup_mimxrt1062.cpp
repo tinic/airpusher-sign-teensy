@@ -10,6 +10,8 @@
 // SPDX-License-Identifier: BSD-3-Clause
 //*****************************************************************************
 
+#include "MIMXRT1062.h"
+
 #if defined (DEBUG)
 #pragma GCC push_options
 #pragma GCC optimize ("Og")
@@ -655,6 +657,11 @@ extern unsigned int __bss_section_table_end;
 __attribute__ ((naked, section(".after_vectors.reset")))
 void ResetISR(void) {
 
+	// NOTE: TEENSY SPECIFIC -------------------------------------------------------------------
+    IOMUXC_GPR->GPR17 = IOMUXC_GPR_GPR17_FLEXRAM_BANK_CFG(0xAAAAAAAA);
+    IOMUXC_GPR->GPR16 = 0x00200007;
+    IOMUXC_GPR->GPR14 = 0x00AA0000;
+
     // Disable interrupts
     __asm volatile ("cpsid i");
 
@@ -696,14 +703,13 @@ void ResetISR(void) {
         data_init(LoadAddr, ExeAddr, SectionLen);
     }
 
-    // At this point, SectionTableAddr = &__bss_section_table;
+	// At this point, SectionTableAddr = &__bss_section_table;
     // Zero fill the bss segment
     while (SectionTableAddr < &__bss_section_table_end) {
         ExeAddr = *SectionTableAddr++;
         SectionLen = *SectionTableAddr++;
         bss_init(ExeAddr, SectionLen);
     }
-
 
 #if !defined (__USE_CMSIS)
 // Assume that if __USE_CMSIS defined, then CMSIS SystemInit code
@@ -732,7 +738,7 @@ void ResetISR(void) {
     // Call the Redlib library, which in turn calls main()
     __main();
 #else
-    main();
+	main();
 #endif
 
     //

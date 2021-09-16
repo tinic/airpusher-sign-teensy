@@ -117,6 +117,7 @@ void SystemInit (void) {
         SysTick->CTRL &= ~SysTick_CTRL_ENABLE_Msk;
     }
 
+
 /* Enable instruction and data caches */
 #if defined(__ICACHE_PRESENT) && __ICACHE_PRESENT
     if (SCB_CCR_IC_Msk != (SCB_CCR_IC_Msk & SCB->CCR)) {

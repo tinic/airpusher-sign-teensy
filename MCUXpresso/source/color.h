@@ -80,6 +80,14 @@ namespace color {
 
         rgba<T> fix_for_ws2816();
 
+        uint16_t *write_rgba_bytes(uint16_t *dst) {
+            *dst++ = r;
+            *dst++ = g;
+            *dst++ = b;
+            *dst++ = a;
+            return dst;
+        }
+
         uint8_t *write_rgba_bytes(uint8_t *dst) {
             *dst++ = r;
             *dst++ = g;

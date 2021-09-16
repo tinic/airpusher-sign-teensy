@@ -20,7 +20,7 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#include "ledpwm.h"
+#include "./ledpwm.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -45,7 +45,7 @@ static inline void arm_dcache_flush_delete(void *addr, uint32_t size)
     __enable_irq();
 }
 
-uint16_t LedsPWMDMA::pwmBuffer[pageCount][stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
+__attribute__((section("DmaData"))) uint16_t LedsPWMDMA::pwmBuffer[pageCount][stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
 
 const LedsPWMDMA::Cfg LedsPWMDMA::cfg[stripCount] = {
   //
@@ -74,6 +74,7 @@ auto DMA_IRQHandler = [] (size_t c) {
     DMA0->CEEI = LedsPWMDMA::cfg[c].chn;
     DMA0->CDNE = LedsPWMDMA::cfg[c].chn;
 
+	IOMUXC->SW_MUX_CTL_PAD[LedsPWMDMA::cfg[c].ctlmux] = IOMUXC_SW_MUX_CTL_PAD_MUX_MODE(5);
     ((volatile PWM_Type*)LedsPWMDMA::cfg[c].pwm)->MCTRL &= ~PWM_MCTRL_RUN(1UL << LedsPWMDMA::cfg[c].sub);
 
     __DSB();
@@ -87,27 +88,12 @@ extern "C" __attribute__((used)) void DMA4_DMA20_IRQHandler() { DMA_IRQHandler(4
 extern "C" __attribute__((used)) void DMA5_DMA21_IRQHandler() { DMA_IRQHandler(5); }
 
 void LedsPWMDMA::transfer() {
-    __disable_irq();
-
     for (size_t c = 0; c < stripCount; c++) {
         IOMUXC->SW_MUX_CTL_PAD[cfg[c].ctlmux] = IOMUXC_SW_MUX_CTL_PAD_MUX_MODE(cfg[c].pwmmode);
-    }
-
-    for (size_t c = 0; c < stripCount; c++) {
     	DMA0->TCD[cfg[c].chn].SADDR = DMA_SADDR_SADDR(&pwmBuffer[currentPage][c][0]);
-    }
-
-    for (size_t c = 0; c < stripCount; c++) {
         DMA0->SERQ = cfg[c].chn;
+        ((volatile PWM_Type*)LedsPWMDMA::cfg[c].pwm)->MCTRL |= PWM_MCTRL_RUN(1UL << LedsPWMDMA::cfg[c].sub);
     }
-
-    PWM1->MCTRL |= PWM_MCTRL_RUN(15);
-    PWM2->MCTRL |= PWM_MCTRL_RUN(15);
-    //PWM3 is reachable on Teensy 4.1 by EMC_31 (Pin 29) and EMC_32 (Pin 28)
-    //PWM3->MCTRL |= PWM_MCTRL_RUN(15);
-    PWM4->MCTRL |= PWM_MCTRL_RUN(15);
-    __enable_irq();
-
     currentPage %= 1;
 }
 
@@ -120,9 +106,10 @@ LedsPWMDMA &LedsPWMDMA::instance() {
     return ledsPWMDMA;
 }
 
-void LedsPWMDMA::prepare(size_t strip, const uint8_t *data) {
+void __attribute__((section("RamFunction"))) LedsPWMDMA::prepare(size_t strip, const uint8_t *data, size_t len) {
     const uint8_t *src = data;
     uint16_t *dst = &pwmBuffer[currentPage][strip][0];
+    uint16_t *stt = dst;
 
     for (size_t c = 0; c < frontTailPadding/2; c++) {
     	*dst++ = 0;
@@ -139,7 +126,7 @@ void LedsPWMDMA::prepare(size_t strip, const uint8_t *data) {
         return p;
     };
 
-    for (size_t c = 0; c < stripBytes; c++) {
+    for (size_t c = 0; c < len; c++) {
        dst = convert_to_one_wire_pwm(dst, *src++);
     }
 
@@ -147,7 +134,7 @@ void LedsPWMDMA::prepare(size_t strip, const uint8_t *data) {
     	*dst++ = 0;
     }
 
-    arm_dcache_flush_delete(&pwmBuffer[currentPage][strip][0], sizeof(pwmBuffer[0][0]));
+    arm_dcache_flush_delete(&pwmBuffer[currentPage][strip][0], dst-stt);
 }
 
 void LedsPWMDMA::resetHardware() {
@@ -173,7 +160,7 @@ void LedsPWMDMA::resetHardware() {
 			pwm->SM[sub].DTCNT0 = 0;
 			pwm->SM[sub].INIT = 0;
 			pwm->SM[sub].VAL0 = 0;
-			pwm->SM[sub].VAL1 = 0;
+			pwm->SM[sub].VAL1 = 32768;
 			pwm->SM[sub].VAL2 = 0;
 			pwm->SM[sub].VAL3 = 0;
 			pwm->SM[sub].VAL4 = 0;
@@ -203,7 +190,6 @@ void LedsPWMDMA::init() {
     }
 
     auto configPWMModule = [=](volatile PWM_Type *pwm, uint8_t sub, uint8_t abx) {
-        //memset(&pwm->SM[sub], 0, sizeof(pwm->SM[0]));
         pwm->SM[sub].INIT = 0;
         pwm->SM[sub].VAL0 = 0;
         pwm->SM[sub].VAL1 = cmp_thl;
@@ -225,11 +211,9 @@ void LedsPWMDMA::init() {
         }
         pwm->SM[sub].DMAEN  = PWM_DMAEN_VALDE(1);
 
-        pwm->SWCOUT = 0;
-        pwm->DTSRCSEL = 0xAAAA;
-        pwm->SM[sub].CTRL2 &= (~PWM_CTRL2_FORCE_SEL_MASK) & (~PWM_CTRL2_FORCE_MASK);
-
-        PRINTF("%08x\r\n", pwm->SM[sub].CTRL2);
+//        pwm->SWCOUT = 0;
+//        pwm->DTSRCSEL = 0xAAAA;
+//        pwm->SM[sub].CTRL2 &= (~PWM_CTRL2_FORCE_SEL_MASK) & (~PWM_CTRL2_FORCE_MASK);
     };
 
     for (size_t c = 0; c < stripCount; c++) {

@@ -54,7 +54,7 @@ int main(void) {
     BOARD_ConfigMPU();
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
-    BOARD_InitBootPeripherals();
+	BOARD_InitBootPeripherals();
 
 #ifndef BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL
     /* Init FSL debug console. */
@@ -64,6 +64,7 @@ int main(void) {
     PRINTF("=======================================================\r\n");
     PRINTF("Airpusher Sign 2021\r\n");
     PRINTF("=======================================================\r\n");
+
 
     sign_entry();
 

@@ -37,26 +37,25 @@ public:
 
     static LedsPWMDMA &instance();
 
-    void prepare(size_t strip, const uint8_t *data);
+    void prepare(size_t strip, const uint8_t *data, size_t len);
     void transfer();
 
-  struct Cfg {
-      uint8_t  chn;
-      volatile void *pwm;
-      uint8_t  sub;
-      uint8_t  abx;
-      uint32_t dmamux;
-      uint32_t ctlmux;
-      uint32_t pwmmode;
-  };
+	struct Cfg {
+		uint8_t  chn;
+		volatile void *pwm;
+		uint8_t  sub;
+		uint8_t  abx;
+		uint32_t dmamux;
+		uint32_t ctlmux;
+		uint32_t pwmmode;
+	};
 
-  static const Cfg cfg[stripCount];
+	static const Cfg cfg[stripCount];
 
-private:
   	static constexpr size_t pageCount = 2;
-	static constexpr size_t frontTailPadding = 64;
+	static constexpr size_t frontTailPadding = 256;
 
-    static uint16_t pwmBuffer[pageCount][stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
+    static __attribute__((section("DmaData"))) uint16_t pwmBuffer[pageCount][stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
 
     static constexpr uint8_t cmp_thl = uint8_t(1.25e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
     static constexpr uint8_t cmp_t0h = uint8_t(0.30e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));

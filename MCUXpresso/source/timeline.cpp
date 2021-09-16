@@ -20,7 +20,8 @@ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-#include "timeline.h"
+#include "./timeline.h"
+
 #include "clock_config.h"
 #include "fsl_debug_console.h"
 
@@ -215,7 +216,7 @@ static bool backgroundReady = false;
 bool Timeline::CheckEffectReadyAndClear() {
     static size_t frameCount = 0;
     if (effectReady) {
-        effectReady = false;
+		effectReady = false;
         idleReady = (frameCount % size_t(effectRate * idleRate)) == 0;
         backgroundReady = (frameCount % size_t(effectRate / backgroundRate)) == 0;
         frameCount ++;
