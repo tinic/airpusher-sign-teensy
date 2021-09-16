@@ -92,6 +92,10 @@ void LedsPWMDMA::transfer() {
         DMA0->SERQ = cfg[c].chn;
     }
 
+    for (size_t c = 0; c < stripCount; c++) {
+        IOMUXC->SW_MUX_CTL_PAD[cfg[c].ctlmux] = IOMUXC_SW_MUX_CTL_PAD_MUX_MODE(cfg[c].pwmmode);
+    }
+
     PWM1->MCTRL |= PWM_MCTRL_RUN(15);
     PWM2->MCTRL |= PWM_MCTRL_RUN(15);
     //PWM3 is reachable on Teensy 4.1 by EMC_31 (Pin 29) and EMC_32 (Pin 28)
@@ -185,13 +189,6 @@ void LedsPWMDMA::init() {
     __disable_irq();
 
     resetHardware();
-
-	IOMUXC->SW_MUX_CTL_PAD[kIOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_06] = IOMUXC_SW_MUX_CTL_PAD_MUX_MODE(5);
-	IOMUXC->SW_PAD_CTL_PAD[kIOMUXC_SW_PAD_CTL_PAD_GPIO_EMC_06] = IOMUXC_SW_PAD_CTL_PAD_DSE(7);
-	GPIO4->DR_CLEAR |= (1u << 6);
-//	IOMUXC_GPR->GPR29 = IOMUXC_GPR_GPR27_GPIO_MUX2_GPIO_SEL(0xFFFFFFFF);
-//	GPIO4->GDIR |= (1u << 6);
-
 
     // Mux PWM pins
     for (size_t c = 0; c < stripCount; c++) {
