@@ -15,7 +15,7 @@ void sign_entry() {
     Leds::instance();
     Effects::instance();
     for(;;) {
-        //__WFI();
+        __WFI();
         //PRINTF("3 %f\r\n", Timeline::SystemTime());
         if (Timeline::instance().CheckIdleReadyAndClear()) {\
             // NOP
@@ -24,7 +24,7 @@ void sign_entry() {
         	// NOP
         }
         if (Timeline::instance().CheckEffectReadyAndClear()) {
-            LedsPWMDMA::instance().transfer(); // Start a background transfer
+            LedsPWMDMA::instance().transfer();
         	Timeline::instance().ProcessEffect();
             if (Timeline::instance().TopEffect().Valid()) {
                 Timeline::instance().TopEffect().Calc();
