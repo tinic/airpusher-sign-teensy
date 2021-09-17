@@ -57,12 +57,20 @@ const LedsPWMDMA::Cfg LedsPWMDMA::cfg[stripCount] = {
   //        - Find FLEXPWMxxxx ALT config and apply rules above to see if it will work.
   //
   // chn,  pwm, sub, abx, dmamux,                          ctlmux,                               pwmmode
-  {    0, PWM2,   0,   0, kDmaRequestMuxFlexPWM2ValueSub0, kIOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_06,   1       }, // Teensy 4.0 Pin 4
+/*{    0, PWM2,   0,   0, kDmaRequestMuxFlexPWM2ValueSub0, kIOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_06,   1       }, // Teensy 4.0 Pin 4
   {    1, PWM1,   3,   0, kDmaRequestMuxFlexPWM1ValueSub3, kIOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00,    6       }, // Teensy 4.0 Pin 8
   {    2, PWM2,   1,   0, kDmaRequestMuxFlexPWM2ValueSub1, kIOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_08,   1       }, // Teensy 4.0 Pin 5
   {    3, PWM4,   0,   0, kDmaRequestMuxFlexPWM4ValueSub0, kIOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_08, 1       }, // Teensy 4.0 Pin 22
   {    4, PWM4,   1,   0, kDmaRequestMuxFlexPWM4ValueSub1, kIOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_09, 1       }, // Teensy 4.0 Pin 23
-  {    5, PWM2,   2,   1, kDmaRequestMuxFlexPWM2ValueSub2, kIOMUXC_SW_MUX_CTL_PAD_GPIO_B0_11,    2       }  // Teensy 4.0 Pin 9
+  {    5, PWM2,   2,   1, kDmaRequestMuxFlexPWM2ValueSub2, kIOMUXC_SW_MUX_CTL_PAD_GPIO_B0_11,    2       }  // Teensy 4.0 Pin 9*/
+
+  {    0, PWM4,   0,   0, kDmaRequestMuxFlexPWM4ValueSub0, kIOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_08, 1       }, // Teensy 4.0 Pin 22
+  {    1, PWM4,   1,   0, kDmaRequestMuxFlexPWM4ValueSub1, kIOMUXC_SW_MUX_CTL_PAD_GPIO_AD_B1_09, 1       }, // Teensy 4.0 Pin 23
+  {    2, PWM2,   1,   0, kDmaRequestMuxFlexPWM2ValueSub1, kIOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_08,   1       }, // Teensy 4.0 Pin 5  // FLEXPWM2_PWMA01
+  {    3, PWM2,   2,   0, kDmaRequestMuxFlexPWM2ValueSub2, kIOMUXC_SW_MUX_CTL_PAD_GPIO_B0_10,    2       }, // Teensy 4.0 Pin 6  // FLEXPWM2_PWMA02
+  {    4, PWM1,   3,   0, kDmaRequestMuxFlexPWM1ValueSub3, kIOMUXC_SW_MUX_CTL_PAD_GPIO_B1_00,    6       }, // Teensy 4.0 Pin 8  // FLEXPWM1_PWMA03
+  {    5, PWM4,   2,   0, kDmaRequestMuxFlexPWM4ValueSub2, kIOMUXC_SW_MUX_CTL_PAD_GPIO_EMC_04,   1       }, // Teensy 4.0 Pin 2  // FLEXPWM4_PWMA02
+
   // Update transfer(), setIRQVectors() & DMAx_IRQHandler() if more entries are added
 };
 
