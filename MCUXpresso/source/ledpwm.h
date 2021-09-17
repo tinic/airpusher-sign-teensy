@@ -32,8 +32,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 class LedsPWMDMA {
 public:
 	static constexpr size_t maxLeds = Leds::maxLedsPerPort;
-	static constexpr size_t stripCount = Leds::maxPorts;
-	static constexpr size_t maxLedBytes = 6;
+	static constexpr size_t portCount = Leds::maxPorts;
+	static constexpr size_t maxLedBytes = Leds::maxBytesPerLed;
 	static constexpr size_t stripBytes = (maxLeds * maxLedBytes + 31) & (~31);
 
     static LedsPWMDMA &instance();
@@ -51,12 +51,12 @@ public:
 		uint32_t pwmmode;
 	};
 
-	static const Cfg cfg[stripCount];
+	static const Cfg cfg[portCount];
 
   	static constexpr size_t pageCount = 2;
 	static constexpr size_t frontTailPadding = 256;
 
-    static __attribute__((section("DmaData"))) uint16_t pwmBuffer[pageCount][stripCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
+    static __attribute__((section("DmaData"))) uint16_t pwmBuffer[pageCount][portCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
 
     static constexpr uint8_t cmp_thl = uint8_t(1.25e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
     static constexpr uint8_t cmp_t0h = uint8_t(0.30e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));

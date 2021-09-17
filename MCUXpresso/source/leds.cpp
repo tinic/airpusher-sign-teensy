@@ -93,7 +93,7 @@ Leds &Leds::instance() {
 
 void Leds::convert() {
     static color::convert converter;
-    static std::array<uint8_t, maxLedsPerPort * 6> data;
+    static std::array<uint8_t, maxLedsPerPort * maxBytesPerLed> data;
 	auto convertPixel = [this] (uint8_t *ptr, uint32_t type, const led &l) {
 		switch(type) {
 			case WS2816: {
@@ -126,6 +126,7 @@ void Leds::convert() {
 
 void Leds::init() {
 
+	// Compute bounds to get normalization factors
 	vector::float4 bounds(+10000.0f, +10000.0f, -10000.0f, -10000.0f);
 
 	for (size_t c = 0; c < strip_setup.size(); c++ ) {
@@ -159,6 +160,7 @@ void Leds::init() {
 		for (size_t d = 0; d < strip_setup[c].size(); d++ ) {
 			const segment &s = strip_setup[c][d];
 			for (size_t e = 0; e < s.count; e++ ) {
+				// Normalize
 				float x = (std::lerp(float(s.xmin), float(s.xmax), float(e)/float(s.count-1)) - offx) / offx;
 				float y = (std::lerp(float(s.ymin), float(s.ymax), float(e)/float(s.count-1)) - offy) / offy;
 				ports[c].leds[portLedCount].index = portLedCount;
