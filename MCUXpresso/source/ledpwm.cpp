@@ -158,7 +158,7 @@ void LedsPWMDMA::resetHardware() {
 		pwm->FSTS = 0x000F; // clear fault status
 		pwm->FFILT = 0;
 		pwm->MCTRL |= PWM_MCTRL_CLDOK(15);
-		auto resetSubModule = [=](volatile PWM_Type *pwm, uint8_t sub) {
+		auto resetSubModule = [=](uint8_t sub) {
 			pwm->SM[sub].CTRL2 = PWM_CTRL2_INDEP(1) | PWM_CTRL2_WAITEN(1) | PWM_CTRL2_DBGEN(1);
 			pwm->SM[sub].CTRL = PWM_CTRL_FULL(1);
 			pwm->SM[sub].OCTRL = 0;
@@ -172,7 +172,7 @@ void LedsPWMDMA::resetHardware() {
 			pwm->SM[sub].VAL5 = 0;
 		};
 	    for (size_t c = 0; c < 4; c++) {
-	    	resetSubModule(pwm, c);
+	    	resetSubModule(c);
 	    }
 	    pwm->MCTRL |= PWM_MCTRL_LDOK(15);
 	    pwm->MCTRL |= PWM_MCTRL_RUN(15);

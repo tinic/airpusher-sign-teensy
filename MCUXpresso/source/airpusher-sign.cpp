@@ -50,7 +50,7 @@
  */
 int main(void) {
 
-    /* Init board hardware. */
+	/* Init board hardware. */
     BOARD_ConfigMPU();
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
@@ -64,7 +64,6 @@ int main(void) {
     PRINTF("=======================================================\r\n");
     PRINTF("Airpusher Sign 2021\r\n");
     PRINTF("=======================================================\r\n");
-
 
     sign_entry();
 

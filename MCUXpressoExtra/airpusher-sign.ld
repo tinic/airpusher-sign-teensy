@@ -143,6 +143,7 @@ SECTIONS
         PROVIDE(__start_data_SRAM_ITC = .) ;
         *(.ramfunc.$RAM2)
         *(.ramfunc.$SRAM_ITC)
+       *(FastFunc)
         *(.data.$RAM2)
         *(.data.$SRAM_ITC)
         *(.data.$RAM2.*)
@@ -161,6 +162,7 @@ SECTIONS
         PROVIDE(__start_data_SRAM_OC = .) ;
         *(.ramfunc.$RAM3)
         *(.ramfunc.$SRAM_OC)
+       *(DmaData)
         *(.data.$RAM3)
         *(.data.$SRAM_OC)
         *(.data.$RAM3.*)

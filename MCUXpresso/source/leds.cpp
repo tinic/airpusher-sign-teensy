@@ -143,14 +143,14 @@ void Leds::init() {
 		}
 	}
 
-	PRINTF("bounds (%f,%f)(%f,%f)\r\n", bounds.x, bounds.y, bounds.z, bounds.w);
+	PRINTF("bounds (%f,%f)(%f,%f)\r\n", double(bounds.x), double(bounds.y), double(bounds.z), double(bounds.w));
 
 	float offx = (bounds.x + bounds.z ) / 2.0f;
 	float offy = (bounds.y + bounds.w ) / 2.0f;
 	float aspx = 1.0f;
 	float aspy = offx / offy;
 
-	PRINTF("off (%f,%f) aspy(%f)\r\n", offx, offy, aspy);
+	PRINTF("off (%f,%f) aspy(%f)\r\n", double(offx), double(offy), double(aspy));
 
 	totalLedCount = 0;
 	totalPortCount = 0;

@@ -38,7 +38,7 @@ public:
 
     static LedsPWMDMA &instance();
 
-    void prepare(size_t strip, const uint8_t *data, size_t len);
+    void prepare(size_t port, const uint8_t *data, size_t len);
     void transfer();
 
 	struct Cfg {

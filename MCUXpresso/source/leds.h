@@ -34,13 +34,13 @@ public:
     void convert();
 
     size_t portCount() const { return totalPortCount; }
-    size_t portLedCount(size_t port) const { return ports[port].count; }
+    size_t portLedCount(size_t p) const { return ports[p].count; }
 
-    vector::float4 &map(size_t port, size_t index) { return ports[port].leds[index].map; }
-    vector::float4 &col(size_t port, size_t index) { return ports[port].leds[index].col; }
+    vector::float4 &map(size_t p, size_t i) { return ports[p].leds[i].map; }
+    vector::float4 &col(size_t p, size_t i) { return ports[p].leds[i].col; }
 
-    void setCol(size_t port, size_t index, const vector::float4 &col) {
-    	ports[port].leds[index].col = col;
+    void setCol(size_t p, size_t i, const vector::float4 &col) {
+    	ports[p].leds[i].col = col;
     }
 
     static constexpr size_t maxLedsPerPort = 200;
