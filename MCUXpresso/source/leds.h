@@ -34,14 +34,17 @@ public:
     void convert();
 
     size_t portCount() const { return totalPortCount; }
-    size_t portLedCount(size_t port) const { return totalLedPortCount[port]; }
+    size_t portLedCount(size_t port) const { return ports[port].count; }
 
-    vector::float4 &map(size_t port, size_t index) { return leds[port][index].map; }
-    vector::float4 &col(size_t port, size_t index) { return leds[port][index].col; }
+    vector::float4 &map(size_t port, size_t index) { return ports[port].leds[index].map; }
+    vector::float4 &col(size_t port, size_t index) { return ports[port].leds[index].col; }
 
     void setCol(size_t port, size_t index, const vector::float4 &col) {
-    	leds[port][index].col = col;
+    	ports[port].leds[index].col = col;
     }
+
+    static constexpr size_t maxLedsPerPort = 200;
+    static constexpr size_t maxPorts = 6;
 
 private:
 
@@ -58,22 +61,22 @@ private:
     void init();
     bool initialized = false;
 
-    static constexpr size_t maxLedsPerPort = 256;
-    static constexpr size_t maxPorts = 6;
-
     struct led {
-    	uint32_t type;
-    	size_t port;
-    	size_t segment;
-    	size_t index;
     	vector::float4 col;
     	vector::float4 map;
+    	size_t         index;
     };
+
+    struct port {
+    	uint32_t type;
+    	size_t   count;
+        std::array<led, maxLedsPerPort> leds;
+    };
+
+    std::array<port, maxPorts> ports;
 
     size_t totalPortCount = 0;
     size_t totalLedCount = 0;
-    std::array<std::array<led, maxLedsPerPort>, maxPorts> leds;
-    std::array<size_t, maxPorts> totalLedPortCount;
 };
 
 #endif /* LEDS_H_ */

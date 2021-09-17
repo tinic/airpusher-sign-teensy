@@ -190,6 +190,8 @@ void LedsPWMDMA::resetHardware() {
 void LedsPWMDMA::init() {
     __disable_irq();
 
+    memset(pwmBuffer, 0, sizeof(pwmBuffer));
+
     resetHardware();
 
     // Mux PWM pins
@@ -218,16 +220,11 @@ void LedsPWMDMA::init() {
           } break;
         }
         pwm->SM[sub].DMAEN  = PWM_DMAEN_VALDE(1);
-
-//        pwm->SWCOUT = 0;
-//        pwm->DTSRCSEL = 0xAAAA;
-//        pwm->SM[sub].CTRL2 &= (~PWM_CTRL2_FORCE_SEL_MASK) & (~PWM_CTRL2_FORCE_MASK);
     };
 
     for (size_t c = 0; c < stripCount; c++) {
         configPWMModule(((volatile PWM_Type*)cfg[c].pwm),cfg[c].sub,cfg[c].abx);
     }
-
 
     CCM->CCGR5 |= CCM_CCGR5_CG3(1); // DMA
 

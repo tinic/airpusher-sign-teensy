@@ -93,9 +93,9 @@ Leds &Leds::instance() {
 
 void Leds::convert() {
     static color::convert converter;
-    static std::array<uint8_t, 1024> data;
-	auto convertPixel = [this] (uint8_t *ptr, size_t p, const led &l) {
-		switch(l.type) {
+    static std::array<uint8_t, maxLedsPerPort * 6> data;
+	auto convertPixel = [this] (uint8_t *ptr, uint32_t type, const led &l) {
+		switch(type) {
 			case WS2816: {
 				color::rgba<uint16_t> pixel(color::rgba<uint16_t>(converter.CIELUV2sRGB(l.col*brightness)).fix_for_ws2816());
 				*ptr++ = ( pixel.g >> 8 ) & 0xFF;
@@ -117,8 +117,8 @@ void Leds::convert() {
 
 	for (size_t c = 0; c < totalPortCount; c++) {
 		uint8_t *ptr = data.data();
-		for (size_t d = 0; d < totalLedPortCount[c]; d++) {
-			ptr = convertPixel(ptr, c, leds[c][d]);
+		for (size_t d = 0; d < ports[c].count; d++) {
+			ptr = convertPixel(ptr, ports[c].type, ports[c].leds[d]);
 		}
 		LedsPWMDMA::instance().prepare(c, data.data(), ptr - data.data());
 	}
@@ -155,40 +155,36 @@ void Leds::init() {
 	totalPortCount = 0;
 	for (size_t c = 0; c < strip_setup.size(); c++ ) {
 		size_t portLedCount = 0;
+		ports[c].type = WS2816;
 		for (size_t d = 0; d < strip_setup[c].size(); d++ ) {
 			const segment &s = strip_setup[c][d];
 			for (size_t e = 0; e < s.count; e++ ) {
 				float x = (std::lerp(float(s.xmin), float(s.xmax), float(e)/float(s.count-1)) - offx) / offx;
 				float y = (std::lerp(float(s.ymin), float(s.ymax), float(e)/float(s.count-1)) - offy) / offy;
-				leds[c][portLedCount].type = WS2816;
-				leds[c][portLedCount].port = c;
-				leds[c][portLedCount].segment = d;
-				leds[c][portLedCount].index = portLedCount;
-				leds[c][portLedCount].col = { x, y, 0.0f, 0.0f};
-				leds[c][portLedCount].map = { x, y, x / aspx, y / aspy,};
+				ports[c].leds[portLedCount].index = portLedCount;
+				ports[c].leds[portLedCount].col = { x, y, 0.0f, 0.0f};
+				ports[c].leds[portLedCount].map = { x, y, x / aspx, y / aspy,};
 				totalLedCount++;
 				portLedCount++;
 			}
 		}
 		PRINTF("port %d led count %d\r\n", totalPortCount, portLedCount);
-		totalLedPortCount[totalPortCount] = portLedCount;
+		ports[totalPortCount].count = portLedCount;
 		totalPortCount++;
 	}
 
     float i = - float(pi) * 0.5f;
     float j = 0;
+	ports[totalPortCount].type = WS2812;
     for (size_t c = 0; c < circleLeds; c++) {
-		leds[totalPortCount][c].type = WS2812;
-		leds[totalPortCount][c].port = totalPortCount;
-		leds[totalPortCount][c].segment = 0;
-		leds[totalPortCount][c].index = c;
-    	leds[totalPortCount][c].col = { cosf(i), -sinf(i),  i,  j };
-    	leds[totalPortCount][c].map = { cosf(i), -sinf(i),  i,  j };
+		ports[totalPortCount].leds[c].index = c;
+		ports[totalPortCount].leds[c].col = { cosf(i), -sinf(i),  i,  j };
+		ports[totalPortCount].leds[c].map = { cosf(i), -sinf(i),  i,  j };
         i += 2.0f * float(pi) / float(circleLeds);
         j += 1.0f / float(circleLeds);
 		totalLedCount++;
     }
-	totalLedPortCount[totalPortCount] = circleLeds;
+    ports[totalPortCount].count = circleLeds;
 	PRINTF("port %d led count %d\r\n", totalPortCount, circleLeds);
     totalPortCount++;
 

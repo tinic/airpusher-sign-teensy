@@ -27,13 +27,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 
 #include "clock_config.h"
+#include "leds.h"
 
 class LedsPWMDMA {
 public:
-	static constexpr size_t maxLeds = 134;
-	static constexpr size_t ledBytes = 6;
-	static constexpr size_t stripCount = 6;
-	static constexpr size_t stripBytes = (maxLeds * ledBytes + 31) & (~31);
+	static constexpr size_t maxLeds = Leds::maxLedsPerPort;
+	static constexpr size_t stripCount = Leds::maxPorts;
+	static constexpr size_t maxLedBytes = 6;
+	static constexpr size_t stripBytes = (maxLeds * maxLedBytes + 31) & (~31);
 
     static LedsPWMDMA &instance();
 
