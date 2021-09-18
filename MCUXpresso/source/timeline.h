@@ -44,7 +44,7 @@ public:
 class Timeline {
 public:
 
-    static constexpr double effectRate = 60.0;
+    static constexpr double effectRate = 90.0;
     static constexpr double backgroundRate = 1.0;
 
     static constexpr double idleRate = 30.0; // once a minute

@@ -174,6 +174,8 @@ void Leds::init() {
 	float aspx = 1.0f;
 	float aspy = offx / offy;
 
+	size_t maxLedsOnPorts = 0;
+
 	totalLedCount = 0;
 	totalPortCount = 0;
 	for (size_t c = 0; c < 5; c++ ) {
@@ -193,6 +195,7 @@ void Leds::init() {
 			}
 		}
 		ports[totalPortCount].count = portLedCount;
+		maxLedsOnPorts = std::max(maxLedsOnPorts, portLedCount);
 		totalPortCount++;
 	}
 
@@ -209,4 +212,8 @@ void Leds::init() {
     }
     ports[totalPortCount].count = circleLeds;
     totalPortCount++;
+	maxLedsOnPorts = std::max(maxLedsOnPorts, circleLeds);
+
+	PRINTF("Total LEDs %d\r\n", int(totalLedCount));
+	PRINTF("Max LEDs on a port %d\r\n", int(maxLedsOnPorts));
 }
