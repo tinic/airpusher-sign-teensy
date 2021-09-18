@@ -209,5 +209,4 @@ void Leds::init() {
     }
     ports[totalPortCount].count = circleLeds;
     totalPortCount++;
-
 }

@@ -50,14 +50,24 @@ void operator delete(void *p)
     free(p);
 }
 
+void operator delete(void *p, unsigned int)
+{
+    free(p);
+}
+
 void operator delete[](void *p)
 {
     free(p);
 }
 
-extern "C" int __aeabi_atexit(void *object,
-		void (*destructor)(void *),
-		void *dso_handle)
+void operator delete[](void *p, unsigned int)
+{
+    free(p);
+}
+
+extern "C" int __aeabi_atexit(void *,
+		void (*)(void *),
+		void *)
 {
 	return 0;
 }
