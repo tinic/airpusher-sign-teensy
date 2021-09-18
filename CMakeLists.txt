@@ -5,7 +5,6 @@ cmake_minimum_required(VERSION 3.10)
 project(airpusher-sign-teensy C CXX ASM)
 
 set(CC_FLAGS
-    -flto
     -mcpu=cortex-m7 
     -mfpu=fpv5-d16
     -mfloat-abi=hard
@@ -34,7 +33,6 @@ set(CXX_FLAGS
 
 set(LD_FLAGS
     -T${CMAKE_SOURCE_DIR}/MCUXpressoExtra/airpusher-sign.ld
-    -flto
     -mcpu=cortex-m7
     -mfpu=fpv5-d16
     -mfloat-abi=hard
@@ -57,7 +55,7 @@ set(DEFINITIONS
     CPU_MIMXRT1062DVL6A_cm7
     SDK_OS_BAREMETAL
     SERIAL_PORT_TYPE_UART=1
-    SDK_DEBUGCONSOLE=0
+    SDK_DEBUGCONSOLE=1
     SDK_DEBUGCONSOLE_UART 
     XIP_EXTERNAL_FLASH=1
     XIP_BOOT_HEADER_ENABLE=1
@@ -116,7 +114,7 @@ file(GLOB_RECURSE MCUXPRESSO_SRC_8 ${PROJECT_SOURCE_DIR}/MCUXpresso/utilities/*.
 file(GLOB_RECURSE MCUXPRESSO_SRC_9 ${PROJECT_SOURCE_DIR}/MCUXpresso/source/*.cpp)
 file(GLOB_RECURSE MCUXPRESSO_SRC_10 ${PROJECT_SOURCE_DIR}/MCUXpresso/startup/*.cpp)
 file(GLOB_RECURSE MCUXPRESSO_SRC_11 ${PROJECT_SOURCE_DIR}/MCUXpresso/xip/*.c)
-file(GLOB_RECURSE MCUXPRESSO_SRC_11 ${PROJECT_SOURCE_DIR}/MCUXpresso/usb/*.c)
+file(GLOB_RECURSE MCUXPRESSO_SRC_12 ${PROJECT_SOURCE_DIR}/MCUXpresso/usb/*.c)
 
 add_executable(${PROJECT_NAME}.elf 
     MCUXpressoExtra/syscalls.c
@@ -132,7 +130,8 @@ add_executable(${PROJECT_NAME}.elf
     ${MCUXPRESSO_SRC_8}
     ${MCUXPRESSO_SRC_9}
     ${MCUXPRESSO_SRC_10}
-    ${MCUXPRESSO_SRC_11})
+    ${MCUXPRESSO_SRC_11}
+    ${MCUXPRESSO_SRC_12})
 
 # Generate version.h
 find_package(Git)
