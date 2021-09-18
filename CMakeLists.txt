@@ -8,11 +8,14 @@ set(CC_FLAGS
     -mcpu=cortex-m7 
     -mfpu=fpv5-sp-d16
     -mfloat-abi=hard
+    -flto
     -mthumb
     -Wnull-dereference
     -fstrict-aliasing
     -fdata-sections
     -ffunction-sections
+    -fno-common
+    -fallow-store-data-races
     -Wall
     -Wno-format
     -ffast-math
@@ -33,6 +36,7 @@ set(CXX_FLAGS
 
 set(LD_FLAGS
     -T${CMAKE_SOURCE_DIR}/MCUXpressoExtra/airpusher-sign.ld
+    -flto
     -mcpu=cortex-m7
     -mfpu=fpv5-d16
     -mfloat-abi=hard
