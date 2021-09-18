@@ -6,14 +6,14 @@ project(airpusher-sign-teensy C CXX ASM)
 
 set(CC_FLAGS
     -mcpu=cortex-m7 
-    -mfpu=fpv5-d16
+    -mfpu=fpv5-sp-d16
     -mfloat-abi=hard
     -mthumb
     -Wnull-dereference
+    -fstrict-aliasing
     -fdata-sections
     -ffunction-sections
     -Wall
-    -Wno-strict-aliasing 
     -Wno-format
     -ffast-math
     -fstack-usage)
@@ -40,6 +40,7 @@ set(LD_FLAGS
     -ffast-math
     -specs=nano.specs
     -u _printf_float
+    -Wl,-print-memory-usage
     -Wl,-Map=${PROJECT_NAME}.map,--cref
     -Wl,--gc-sections
     -Wl,--sort-section=alignment)
