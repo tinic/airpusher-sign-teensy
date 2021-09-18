@@ -173,7 +173,7 @@ void Leds::init() {
 	float offy = (bounds.y + bounds.w ) / 2.0f;
 	float aspx = 1.0f;
 	float aspy = offx / offy;
-
+ 
 	size_t maxLedsOnPorts = 0;
 
 	totalLedCount = 0;
