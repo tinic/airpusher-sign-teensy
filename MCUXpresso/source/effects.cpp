@@ -218,8 +218,9 @@ void Effects::init() {
     if (!Timeline::instance().Scheduled(glowRepeater)) {
 
         glowRepeater.type = Timeline::Span::Interval;
-        glowRepeater.interval = 10.0;
-        glowRepeater.time = Timeline::SystemTime() + 10.0; // Initial time
+        glowRepeater.interval = 60.0;
+        glowRepeater.intervalFuzz = 60.00;
+        glowRepeater.time = Timeline::SystemTime() + 60.0; // Initial time
 
         glowRepeater.startFunc = [](Timeline::Span &) {
             PRINTF("Glow at %f\r\n", Timeline::SystemTime());

@@ -141,7 +141,7 @@ void Timeline::Process(Span::Type type) {
     Span *p = 0;
     for (Span *i = head; i ; i = i->next) {
         if (i->type == type) {
-            if ((i->time) >= time && !i->active) {
+            if ((i->time) <= time && !i->active) {
                 i->active = true;
                 i->Start();
             }
@@ -159,7 +159,12 @@ void Timeline::Process(Span::Type type) {
                 case Span::Interval: {
                     if (i->duration != std::numeric_limits<double>::infinity() && ((i->time + i->duration) < time)) {
                         // Reschedule
-                        i->time += std::lerp(i->interval, i->interval + i->intervalFuzz, 0.0); // FIXME!!
+                        if (i->intervalFuzz != 0.0) {
+                            std::uniform_real_distribution<> dis(i->interval, i->interval + i->intervalFuzz);
+                            i->time += dis(gen);
+                        } else {
+                            i->time += i->interval;
+                        }
                         i->active = false;
                         i->Done();
                     }
@@ -321,4 +326,6 @@ void Timeline::init() {
     NVIC_EnableIRQ(GPT2_IRQn);
 
     __enable_irq();
+
+    gen.seed(rd());
 }

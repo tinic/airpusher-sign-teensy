@@ -26,6 +26,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <cstdint>
 #include <functional>
 #include <tuple>
+#include <random>
 
 class Quad {
 public:
@@ -108,6 +109,7 @@ public:
     static uint64_t FastSystemTime();
     static uint64_t FastSystemTimeCmp();
 
+
 private:
     void Process(Span::Type type);
     Span &Top(Span::Type type) const;
@@ -117,6 +119,9 @@ private:
 
     void init();
     bool initialized = false;
+
+    std::random_device rd;  // Will be used to obtain a seed for the random number engine
+    std::mt19937 gen; // Standard mersenne_twister_engine seeded with rd()
 };
 
 #endif /* TIMELINE_H_ */
