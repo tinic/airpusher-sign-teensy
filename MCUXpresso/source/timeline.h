@@ -53,10 +53,15 @@ public:
 
         enum Type {
             None,
-            Effect
+            Effect,
+            Interval
         };
 
         Type type = None;
+
+        double interval = 0.0;
+        double intervalFuzz = 0.0;
+
         double time = 0.0;
         double duration = 0.0;
 
@@ -69,18 +74,10 @@ public:
         std::function<void (Span &span)> commitFunc;
         std::function<void (Span &span)> doneFunc;
 
-        std::function<void (Span &span, bool down)> switch1Func;
-        std::function<void (Span &span, bool down)> switch2Func;
-        std::function<void (Span &span, bool down)> switch3Func;
-
         void Start() { if (startFunc) startFunc(*this); }
         void Calc() { if (calcFunc) calcFunc(*this, Timeline::instance().Below(this, type)); }
         void Commit() { if (commitFunc) commitFunc(*this); }
         void Done() { if (doneFunc) doneFunc(*this); }
-
-        void ProcessSwitch1(bool down) { if (switch1Func) switch1Func(*this, down); }
-        void ProcessSwitch2(bool down) { if (switch2Func) switch2Func(*this, down); }
-        void ProcessSwitch3(bool down) { if (switch3Func) switch3Func(*this, down); }
 
         bool Valid() const { return type != None; }
 
@@ -103,6 +100,9 @@ public:
 
     void ProcessEffect();
     Span &TopEffect() const;
+
+    void ProcessInterval();
+    Span &TopInterval() const;
 
     static double SystemTime();
     static uint64_t FastSystemTime();

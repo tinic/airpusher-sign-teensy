@@ -151,6 +151,24 @@ void Leds::convert() {
 	}
 }
 
+std::array<std::array<vector::float4, Leds::maxLedsPerPort>, Leds::maxPorts> Leds::get() const {
+	std::array<std::array<vector::float4, maxLedsPerPort>, maxPorts> col;
+	for (size_t c = 0; c < maxPorts; c++) {
+		for (size_t d = 0; d < maxLedsPerPort; d++) {
+			col[c][d] = ports[c].leds[d].col;
+		}
+	}
+	return col; 
+}
+
+void Leds::set(const std::array<std::array<vector::float4, Leds::maxLedsPerPort>, Leds::maxPorts> &col) {
+	for (size_t c = 0; c < maxPorts; c++) {
+		for (size_t d = 0; d < maxLedsPerPort; d++) {
+			ports[c].leds[d].col = col[c][d];
+		}
+	}
+}
+
 void Leds::init() {
 
 	// Compute bounds to get normalization factors

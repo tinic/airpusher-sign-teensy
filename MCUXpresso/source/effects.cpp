@@ -26,6 +26,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "./color.h"
 #include "./fastmath.h"
 
+#include "fsl_debug_console.h"
+
 #include <random>
 #include <array>
 #include <limits>
@@ -68,44 +70,127 @@ Effects &Effects::instance() {
     return effects;
 }
 
+void Effects::basic(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    const double speed = 0.25;
+    float walk = (1.0f - static_cast<float>(frac(now * speed)));
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_wipe_white.reflect(pos.w + walk * 4);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        return gradient_wipe_white.reflect(pos.x + walk * 4);
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            //Leds::instance().setCol(port, d, segment_color[Leds::instance().seg(port,d)]);
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+    iteratePort(5, calcRingColor);
+}
+
+void Effects::colorful(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    const double speed = 0.25;
+    float walk = (1.0f - static_cast<float>(frac(now * speed)));
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w + walk);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.x + walk);
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
 void Effects::init() {
 
     random.set_seed(0x1ED51ED5);
 
     static Timeline::Span mainEffect;
 
+    static uint32_t current_effect = 0;
+    static uint32_t previous_effect = 0;
+    static double switch_time = 0;
+
     if (!Timeline::instance().Scheduled(mainEffect)) {
         mainEffect.type = Timeline::Span::Effect;
         mainEffect.time = Timeline::SystemTime();
         mainEffect.duration = std::numeric_limits<double>::infinity();
         mainEffect.calcFunc = [this](Timeline::Span &span, Timeline::Span &) {
-            double now = Timeline::SystemTime() - span.time;
 
-            const double speed = 0.25;
-            float walk = (1.0f - static_cast<float>(frac(now * speed)));
+            Leds &leds(Leds::instance());
 
-            auto calcRingColor = [=](const vector::float4 &pos) {
-                return gradient_wipe_white.reflect(pos.w + walk * 4);
-            };
+            if ( current_effect != scheduled_effect ) {
+                previous_effect = current_effect;
+                current_effect = scheduled_effect;
+                switch_time = Timeline::SystemTime();
+            }
 
-            auto calcBirdColor = [=](const vector::float4 &pos) {
-                return gradient_wipe_white.reflect(pos.x + walk * 4);
-            };
-
-            auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
-            	size_t portLedCount = Leds::instance().portLedCount(port);
-                for (size_t d = 0; d < portLedCount ; d++) {
-                	//Leds::instance().setCol(port, d, segment_color[Leds::instance().seg(port,d)]);
-                	Leds::instance().setCol(port, d, calc(Leds::instance().map(port,d)));
+            auto calc_effect = [this, span] (uint32_t effect) {
+                switch (effect) {
+                    case 0:
+                        basic(span);
+                    break;
                 }
             };
 
-            iteratePort(0, calcBirdColor);
-            iteratePort(1, calcBirdColor);
-            iteratePort(2, calcBirdColor);
-            iteratePort(3, calcBirdColor);
-            iteratePort(4, calcBirdColor);
-            iteratePort(5, calcRingColor);
+            double blend_duration = 0.5;
+            double now = Timeline::SystemTime();
+            
+            if ((now - switch_time) < blend_duration) {
+                calc_effect(previous_effect);
+
+                auto colPrev = leds.get();
+
+                calc_effect(current_effect);
+
+                auto colNext = leds.get();
+
+                float blend = static_cast<float>(now - switch_time) * (1.0f / static_cast<float>(blend_duration));
+
+                for (size_t c = 0; c < colNext.size(); c++) {
+                    for (size_t d = 0; d < colNext[c].size(); d++) {
+                        colNext[c][d] = vector::float4::lerp(colPrev[c][d], colNext[c][d], blend);
+                    }
+                }
+
+                leds.set(colNext);
+
+            } else {
+                calc_effect(current_effect);
+            }
         };
     }
 
@@ -114,5 +199,33 @@ void Effects::init() {
     };
 
     Timeline::instance().Add(mainEffect);
-}
 
+    static Timeline::Span effectSwitcher;
+    if (!Timeline::instance().Scheduled(effectSwitcher)) {
+        effectSwitcher.type = Timeline::Span::Interval;
+        effectSwitcher.interval = 120.0;
+        effectSwitcher.time = Timeline::SystemTime() + 120.0; // Initial time
+
+        effectSwitcher.startFunc = [](Timeline::Span &) {
+            PRINTF("Switch effect at %f\r\n", Timeline::SystemTime());
+            Effects::instance().NextEffect();
+        };
+
+        Timeline::instance().Add(effectSwitcher);
+    }
+
+    static Timeline::Span glowRepeater;
+    if (!Timeline::instance().Scheduled(glowRepeater)) {
+
+        glowRepeater.type = Timeline::Span::Interval;
+        glowRepeater.interval = 10.0;
+        glowRepeater.time = Timeline::SystemTime() + 10.0; // Initial time
+
+        glowRepeater.startFunc = [](Timeline::Span &) {
+            PRINTF("Glow at %f\r\n", Timeline::SystemTime());
+        };
+
+        Timeline::instance().Add(glowRepeater);
+
+    }
+}

@@ -48,6 +48,9 @@ public:
     static constexpr size_t maxPorts = 6; // Up to 8 on Teensy 4.0
     static constexpr size_t maxBytesPerLed = 6; // WS2816 has 6 bytes, WS2812 has 4
 
+    std::array<std::array<vector::float4, maxLedsPerPort>, maxPorts> get() const;
+    void set(const std::array<std::array<vector::float4, maxLedsPerPort>, maxPorts> &col);
+
 private:
 
     float brightness = 1.0f;

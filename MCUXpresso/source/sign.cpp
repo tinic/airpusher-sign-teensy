@@ -25,6 +25,7 @@ void sign_entry() {
         }
         if (Timeline::instance().CheckEffectReadyAndClear()) {
             LedsPWMDMA::instance().transfer();
+        	Timeline::instance().ProcessInterval();
         	Timeline::instance().ProcessEffect();
             if (Timeline::instance().TopEffect().Valid()) {
                 Timeline::instance().TopEffect().Calc();

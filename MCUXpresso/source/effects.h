@@ -23,11 +23,18 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef EFFECTS_H_
 #define EFFECTS_H_
 
+#include "./timeline.h"
+
 #include <stdint.h>
 
 class Effects {
 public:
     static Effects &instance();
+
+    void NextEffect() {
+        scheduled_effect ++;
+        scheduled_effect %= effect_count;
+    }
 
 private:
     class pseudo_random {
@@ -67,15 +74,14 @@ private:
 
     } random;
 
-    void color_walker();
-    void light_walker();
-    void rgb_band();
-    void brilliance();
-
-    void standard_bird();
+    void basic(const Timeline::Span &span);
+    void colorful(const Timeline::Span &span);
 
     void init();
     bool initialized = false;
+
+    size_t effect_count = 2;
+    uint32_t scheduled_effect = 0;
 };
 
 #endif /* EFFECTS_H_ */
