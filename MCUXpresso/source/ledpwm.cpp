@@ -228,14 +228,23 @@ void LedsPWMDMA::init() {
     DMA0->CR = DMA_CR_GRP1PRI(1) | DMA_CR_EDBG(1) | DMA_CR_EMLM(1);
 
     auto resetDMAChannel = [] (uint32_t chn) {
-
         DMA0->CERQ = chn;
         DMA0->CERR = chn;
         DMA0->CEEI = chn;
         DMA0->CINT = chn;
         DMA0->CDNE = chn;
 
-        memset(&DMA0->TCD[chn], 0, sizeof(DMA0->TCD[0]));
+        DMA0->TCD[chn].SADDR = 0;
+        DMA0->TCD[chn].SOFF = 0;
+        DMA0->TCD[chn].ATTR = 0;
+        DMA0->TCD[chn].NBYTES_MLNO = 0;
+        DMA0->TCD[chn].SLAST = 0;
+        DMA0->TCD[chn].DADDR = 0;
+        DMA0->TCD[chn].DOFF = 0;
+        DMA0->TCD[chn].CITER_ELINKNO = 0;
+        DMA0->TCD[chn].DLAST_SGA = 0;
+        DMA0->TCD[chn].CSR = 0;
+        DMA0->TCD[chn].BITER_ELINKNO = 0;
     };
 
     auto setDMATCD = [] (size_t c, size_t chn, size_t page, volatile uint16_t *dst) {
