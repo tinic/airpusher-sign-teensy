@@ -189,7 +189,13 @@ void Leds::init() {
 				float y = (std::lerp(float(s.ymin), float(s.ymax), float(e)/float(s.count-1)) - offy) / offy;
 				ports[c].leds[portLedCount].index = portLedCount;
 				ports[c].leds[portLedCount].col = { x, y, 0.0f, 0.0f};
-				ports[c].leds[portLedCount].map = { x, y, x / aspx, y / aspy,};
+				if (c == 4) {
+			        float i = float(d) * ( 2.0f * float(pi) / float(strip_setup[c].count) );
+					float j = float(d) * ( 1.0f / float(strip_setup[c].count) );
+					ports[c].leds[portLedCount].map = { x, y, i, j };
+				} else {
+					ports[c].leds[portLedCount].map = { x, y, x / aspx, y / aspy,};
+				}
 				totalLedCount++;
 				portLedCount++;
 			}
