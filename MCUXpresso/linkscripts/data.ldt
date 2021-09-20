@@ -1,0 +1,9 @@
+<#if memory.alias=="RAM2">
+ *(.text*)
+ *(.rodata .rodata.* .constdata .constdata.*)
+. = ALIGN(${text_align});
+</#if>
+*(.data.$${memory.alias})
+*(.data.$${memory.name})
+*(.data.$${memory.alias}.*)
+*(.data.$${memory.name}.*)

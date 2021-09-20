@@ -1,0 +1,3 @@
+/* Discard for now. Somehow we cant move it into RAM2 */
+/DISCARD/ : { *(.ARM.exidx*) }
+/DISCARD/ : { *(.gnu.linkonce.armexidx.*) }
