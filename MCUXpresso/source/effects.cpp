@@ -43,11 +43,13 @@ static constexpr vector::float4 gradient_rainbow_data[] = {
     color::srgb8_stop({0xff,0x00,0x00}, 1.00f)};
 static const color::gradient gradient_rainbow(gradient_rainbow_data,7);
 
-static constexpr vector::float4 gradient_white_wipe_data[] = {
-    color::srgb8_stop({0xff,0xff,0xff}, 0.00f),
-    color::srgb8_stop({0x00,0x00,0x00}, 0.10f),
+static constexpr vector::float4 glow_wipe_data[] = {
+    color::srgb8_stop({0x00,0x00,0x00}, 0.00f),
+    color::srgb8_stop({0x00,0x00,0x00}, 0.45f),
+    color::srgb8_stop({0xff,0xff,0xff}, 0.50f),
+    color::srgb8_stop({0x00,0x00,0x00}, 0.55f),
     color::srgb8_stop({0x00,0x00,0x00}, 1.00f)};
-static const color::gradient gradient_wipe_white(gradient_white_wipe_data,3);
+static const color::gradient glow_wipe(glow_wipe_data,3);
 
 static constexpr vector::float4 segment_color [] = {
 	color::srgb8({0xFF,0xFF,0xFF}),
@@ -78,11 +80,11 @@ void Effects::basic(const Timeline::Span &span) {
     float walk = (1.0f - static_cast<float>(frac(now * speed)));
 
     auto calcRingColor = [=](const vector::float4 &pos) {
-        return gradient_wipe_white.reflect(pos.w + walk * 4);
+        return gradient_rainbow.reflect(pos.w + walk * 4);
     };
 
     auto calcBirdColor = [=](const vector::float4 &pos) {
-        return gradient_wipe_white.reflect(pos.x + walk * 4);
+        return gradient_rainbow.reflect(pos.x + walk * 4);
     };
 
     auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
@@ -222,7 +224,47 @@ void Effects::init() {
         glowRepeater.intervalFuzz = 60.00;
         glowRepeater.time = Timeline::SystemTime() + 60.0; // Initial time
 
-        glowRepeater.startFunc = [](Timeline::Span &) {
+        glowRepeater.startFunc = [this](Timeline::Span &) {
+
+            static Timeline::Span glowEffect;
+
+            if (!Timeline::instance().Scheduled(glowEffect)) {
+                glowEffect.type = Timeline::Span::Effect;
+                glowEffect.time = Timeline::SystemTime();
+                glowEffect.duration = 1.0f;
+                glowEffect.calcFunc = [this](Timeline::Span &span, Timeline::Span &below) {
+                    below.Calc();
+                    auto belowCol = Leds::instance().get();
+
+                    double now = Timeline::SystemTime() - span.time;
+
+                    float walk = float( ( now - glowEffect.time ) / glowEffect.duration ) - 0.5f;
+
+                    auto calcBirdColor = [=](const vector::float4 &pos) {
+                        return glow_wipe.clamp(pos.x + walk);
+                    };
+
+                    auto iteratePort = [belowCol](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+                        Leds &leds(Leds::instance());
+                        size_t portLedCount = leds.portLedCount(port);
+                        for (size_t c = 0; c < portLedCount ; c++) {
+                            leds.setCol(port, c, belowCol[port][c] + calc(leds.map(port, c)));
+                        }
+                    };
+
+                    iteratePort(0, calcBirdColor);
+                    iteratePort(1, calcBirdColor);
+                    iteratePort(2, calcBirdColor);
+                    iteratePort(3, calcBirdColor);
+                    iteratePort(4, calcBirdColor);
+
+                };
+                glowEffect.commitFunc = [this](Timeline::Span &) {
+                    Leds::instance().convert();
+                };
+                Timeline::instance().Add(glowEffect);
+            }
+
             PRINTF("Glow at %f\r\n", Timeline::SystemTime());
         };
 
