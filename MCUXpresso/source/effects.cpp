@@ -41,6 +41,24 @@ static constexpr vector::float4 gradient_rainbow_data[] = {
     color::srgb8_stop({0xff,0x00,0x00}, 1.00f)};
 static const color::gradient gradient_rainbow(gradient_rainbow_data,7);
 
+static constexpr vector::float4 gradient_white_wipe_data[] = {
+    color::srgb8_stop({0xff,0xff,0xff}, 0.00f),
+    color::srgb8_stop({0x00,0x00,0x00}, 0.10f),
+    color::srgb8_stop({0x00,0x00,0x00}, 1.00f)};
+static const color::gradient gradient_wipe_white(gradient_white_wipe_data,3);
+
+static constexpr vector::float4 segment_color [] = {
+	color::srgb8({0xFF,0xFF,0xFF}),
+	color::srgb8({0xFF,0x00,0x00}),
+	color::srgb8({0x00,0xFF,0x00}),
+	color::srgb8({0x00,0x00,0xFF}),
+	color::srgb8({0xFF,0xFF,0x00}),
+	color::srgb8({0x00,0xFF,0xFF}),
+	color::srgb8({0xFF,0x00,0xFF}),
+	color::srgb8({0x00,0x7F,0xFF}),
+	color::srgb8({0xFF,0x7F,0x00}),
+};
+
 Effects &Effects::instance() {
     static Effects effects;
     if (!effects.initialized) {
@@ -63,20 +81,21 @@ void Effects::init() {
         mainEffect.calcFunc = [this](Timeline::Span &span, Timeline::Span &) {
             double now = Timeline::SystemTime() - span.time;
 
-            const double speed = 1.0;
+            const double speed = 0.25;
             float walk = (1.0f - static_cast<float>(frac(now * speed)));
 
             auto calcRingColor = [=](const vector::float4 &pos) {
-                return gradient_rainbow.repeat(pos.w + walk);
+                return gradient_wipe_white.reflect(pos.w + walk * 4);
             };
 
             auto calcBirdColor = [=](const vector::float4 &pos) {
-                return gradient_rainbow.repeat(pos.x + walk);
+                return gradient_wipe_white.reflect(pos.x + walk * 4);
             };
 
             auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
             	size_t portLedCount = Leds::instance().portLedCount(port);
                 for (size_t d = 0; d < portLedCount ; d++) {
+                	//Leds::instance().setCol(port, d, segment_color[Leds::instance().seg(port,d)]);
                 	Leds::instance().setCol(port, d, calc(Leds::instance().map(port,d)));
                 }
             };

@@ -36,6 +36,7 @@ public:
     size_t portCount() const { return totalPortCount; }
     size_t portLedCount(size_t p) const { return ports[p].count; }
 
+    size_t seg(size_t p, size_t i) { return ports[p].leds[i].segment; }
     vector::float4 &map(size_t p, size_t i) { return ports[p].leds[i].map; }
     vector::float4 &col(size_t p, size_t i) { return ports[p].leds[i].col; }
 
@@ -65,6 +66,7 @@ private:
     struct led {
     	vector::float4 col;
     	vector::float4 map;
+    	size_t 		   segment;
     	size_t         index;
     };
 
