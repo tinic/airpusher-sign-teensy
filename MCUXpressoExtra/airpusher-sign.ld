@@ -29,6 +29,8 @@ ENTRY(ResetISR)
 
 SECTIONS
 {
+/DISCARD/ : { *(.ARM.exidx*) }
+/DISCARD/ : { *(.gnu.linkonce.armexidx.*) }
      /* Image Vector Table and Boot Data for booting from external flash */
     .boot_hdr : ALIGN(4)
     {
@@ -82,9 +84,13 @@ SECTIONS
 
     .text : ALIGN(4)
     {
-       *(.text*)
-       *(.rodata .rodata.* .constdata .constdata.*)
-       . = ALIGN(4);
+*startup_*.o (.text.*)
+*system_*.o (.text.*)
+
+*startup_*.o (.rodata .rodata.* .constdata .constdata.*)
+*system_*.o (.rodata .rodata.* .constdata .constdata.*)
+. = ALIGN(4);
+
             /* C++ constructors etc */
             . = ALIGN(4);
             KEEP(*(.init))
@@ -144,10 +150,13 @@ SECTIONS
         *(.ramfunc.$RAM2)
         *(.ramfunc.$SRAM_ITC)
        *(FastFunc)
-        *(.data.$RAM2)
-        *(.data.$SRAM_ITC)
-        *(.data.$RAM2.*)
-        *(.data.$SRAM_ITC.*)
+ *(.text*)
+ *(.rodata .rodata.* .constdata .constdata.*)
+  . = ALIGN(4);
+*(.data.$RAM2)
+*(.data.$SRAM_ITC)
+*(.data.$RAM2.*)
+*(.data.$SRAM_ITC.*)
         . = ALIGN(4) ;
         PROVIDE(__end_data_RAM2 = .) ;
         PROVIDE(__end_data_SRAM_ITC = .) ;
@@ -163,10 +172,10 @@ SECTIONS
         *(.ramfunc.$RAM3)
         *(.ramfunc.$SRAM_OC)
        *(DmaData)
-        *(.data.$RAM3)
-        *(.data.$SRAM_OC)
-        *(.data.$RAM3.*)
-        *(.data.$SRAM_OC.*)
+*(.data.$RAM3)
+*(.data.$SRAM_OC)
+*(.data.$RAM3.*)
+*(.data.$SRAM_OC.*)
         . = ALIGN(4) ;
         PROVIDE(__end_data_RAM3 = .) ;
         PROVIDE(__end_data_SRAM_OC = .) ;
@@ -316,4 +325,7 @@ SECTIONS
     _image_start = LOADADDR(.text);
     _image_end = LOADADDR(.data) + SIZEOF(.data);
     _image_size = _image_end - _image_start;
+	_itcmBlockCount = ((__end_data_SRAM_ITC - __start_data_SRAM_ITC) + 0x7FFF) >> 15;
+	_flashBankConfig = 0xAAAAAAAA | ((1 << (_itcmBlockCount * 2)) - 1);
+	_stackTop = ORIGIN(SRAM_DTC) + ((16 - _itcmBlockCount) << 15);
 }

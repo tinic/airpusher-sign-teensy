@@ -648,6 +648,10 @@ extern unsigned int __data_section_table;
 extern unsigned int __data_section_table_end;
 extern unsigned int __bss_section_table;
 extern unsigned int __bss_section_table_end;
+extern unsigned int __bss_section_table_end;
+extern unsigned int _itcmBlockCount;
+extern unsigned int _flashBankConfig;
+extern unsigned int _stackTop;
 
 //*****************************************************************************
 // Reset entry point for your code.
@@ -658,14 +662,14 @@ __attribute__ ((naked, section(".after_vectors.reset")))
 void ResetISR(void) {
 
 	// NOTE: TEENSY SPECIFIC -------------------------------------------------------------------
-    IOMUXC_GPR->GPR17 = 0xAAAAAAAA; // IOMUXC_GPR_GPR17_FLEXRAM_BANK_CFG(0xAAAAAAAA);
+    IOMUXC_GPR->GPR17 = (uint32_t)&_flashBankConfig; // 0xAAAAAAAA; // IOMUXC_GPR_GPR17_FLEXRAM_BANK_CFG(0xAAAAAAAA);
     IOMUXC_GPR->GPR16 = 0x00000007; // IOMUXC_GPR_GPR16_INIT_ITCM_EN(1) | IOMUXC_GPR_GPR16_INIT_DTCM_EN(1) | IOMUXC_GPR_GPR16_FLEXRAM_BANK_CFG_SEL(1)
     IOMUXC_GPR->GPR14 = 0x00AA0000; // IOMUXC_GPR_GPR14_CM7_CFGITCMSZ(0xA) | IOMUXC_GPR_GPR14_CM7_CFGDTCMSZ(0xA)
 
     // Disable interrupts
     __asm volatile ("cpsid i");
 
-    __asm volatile ("MSR MSP, %0" : : "r" (&_vStackTop) : );
+    __asm volatile ("MSR MSP, %0" : : "r" (uint32_t(&_stackTop)) : );
 
 #if defined (__USE_CMSIS)
 // If __USE_CMSIS defined, then call CMSIS SystemInit code
