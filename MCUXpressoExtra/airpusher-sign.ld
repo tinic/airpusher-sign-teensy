@@ -327,5 +327,5 @@ SECTIONS
     _image_size = _image_end - _image_start;
 	_itcmBlockCount = ((__end_data_SRAM_ITC - __start_data_SRAM_ITC) + 0x7FFF) >> 15;
 	_flashBankConfig = 0xAAAAAAAA | ((1 << (_itcmBlockCount * 2)) - 1);
-	_stackTop = ORIGIN(SRAM_DTC) + ((16 - _itcmBlockCount) << 15);
+	_adjustedStackTop = ORIGIN(SRAM_DTC) + ((16 - _itcmBlockCount) << 15);
 }

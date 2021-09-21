@@ -296,6 +296,15 @@ void BOARD_ConfigMPU(void)
      */
     /* Region 0 setting: Instruction access disabled, No data access permission. */
 
+	// NOTE: TEENSY SPECIFIC -------------------------------------------------------------------
+    //
+    // Here we set up access rights to our RAM and other memory ranges.
+    // Of note is that we allow full access, including running code from DTC, OC and of course
+    // ITC memory. In a shipping product ITC would be readonly, and DRC would not be executable.
+    //
+    // These settings also enable the caches on these memory ranges. Disabling caches would
+    // slow down the MCU drastically.
+    //
     MPU->RBAR = ARM_MPU_RBAR(0, 0x00000000U);
     MPU->RASR = ARM_MPU_RASR(1, ARM_MPU_AP_NONE, 2, 0, 0, 0, 0, ARM_MPU_REGION_SIZE_4GB);
 

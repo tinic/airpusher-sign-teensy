@@ -649,9 +649,11 @@ extern unsigned int __data_section_table_end;
 extern unsigned int __bss_section_table;
 extern unsigned int __bss_section_table_end;
 extern unsigned int __bss_section_table_end;
+
+// NOTE: TEENSY SPECIFIC -------------------------------------------------------------------
 extern unsigned int _itcmBlockCount;
 extern unsigned int _flashBankConfig;
-extern unsigned int _stackTop;
+extern unsigned int _adjustedStackTop;
 
 //*****************************************************************************
 // Reset entry point for your code.
@@ -662,6 +664,18 @@ __attribute__ ((naked, section(".after_vectors.reset")))
 void ResetISR(void) {
 
 	// NOTE: TEENSY SPECIFIC -------------------------------------------------------------------
+    //
+    // Configure the RAM banks. The main 512K RAM bank is shared between the DTC and ITC buses.
+    // The linker script will calculate how many ITC 32KB blocks are used and set the flags accordindly.
+    // As ITC blocks are enabled, the top end of the DTC memory space becomes inaccessible. Hence the
+    // stack pointer needs to be adjusted as seen below.
+    //
+    // ITC should be primarily used for code, DTC for data. Though running code from DTC works also, if
+    // the MPU (Memory Protection Unit) tables are set up to allow it.
+    //
+    // Of note is that the 512KB OC memory does not need to be configured. You can in theory run everything
+    // from OC memory, at a steep performance penality though.
+    //
     IOMUXC_GPR->GPR17 = (uint32_t)&_flashBankConfig; // 0xAAAAAAAA; // IOMUXC_GPR_GPR17_FLEXRAM_BANK_CFG(0xAAAAAAAA);
     IOMUXC_GPR->GPR16 = 0x00000007; // IOMUXC_GPR_GPR16_INIT_ITCM_EN(1) | IOMUXC_GPR_GPR16_INIT_DTCM_EN(1) | IOMUXC_GPR_GPR16_FLEXRAM_BANK_CFG_SEL(1)
     IOMUXC_GPR->GPR14 = 0x00AA0000; // IOMUXC_GPR_GPR14_CM7_CFGITCMSZ(0xA) | IOMUXC_GPR_GPR14_CM7_CFGDTCMSZ(0xA)
@@ -669,7 +683,9 @@ void ResetISR(void) {
     // Disable interrupts
     __asm volatile ("cpsid i");
 
-    __asm volatile ("MSR MSP, %0" : : "r" (uint32_t(&_stackTop)) : );
+	// NOTE: TEENSY SPECIFIC -------------------------------------------------------------------
+    // The stack pointer here is adjusted down to reflect the size of ITC memory.
+    __asm volatile ("MSR MSP, %0" : : "r" (uint32_t(&_adjustedStackTop)) : );
 
 #if defined (__USE_CMSIS)
 // If __USE_CMSIS defined, then call CMSIS SystemInit code
