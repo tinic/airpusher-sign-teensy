@@ -344,7 +344,7 @@ namespace vector {
             return float4(this->z, this->y, 0.0, 0.0);
         }
 
-        float4 sqrt() {
+        float4 sqrt() const {
             return float4(sqrtf(this->x),
                           sqrtf(this->y),
                           sqrtf(this->z),
@@ -358,7 +358,7 @@ namespace vector {
                           sqrtf(a.w));
         }
 
-        float4 rotate2d(float angle) {
+        float4 rotate2d(float angle) const {
             return float4(
                 this->x * cosf(angle) - this->y * sinf(angle),
                 this->y * cosf(angle) + this->x * sinf(angle),
@@ -366,7 +366,7 @@ namespace vector {
                 this->w);
         }
 
-        float4 reflect() {
+        float4 reflect() const {
             return float4(
                 reflect(this->x),
                 reflect(this->y),
@@ -374,7 +374,7 @@ namespace vector {
                 reflect(this->w));
         }
 
-        float4 rsqrt() {
+        float4 rsqrt() const {
             return float4((this->x != 0.0f) ? (1.0f/sqrtf(this->x)) : 0.0f,
                           (this->y != 0.0f) ? (1.0f/sqrtf(this->y)) : 0.0f,
                           (this->z != 0.0f) ? (1.0f/sqrtf(this->z)) : 0.0f,
@@ -441,7 +441,7 @@ namespace vector {
 
     private:
 
-        float reflect(float i) {
+        float reflect(float i) const {
             i = fabsf(i);
             if ((static_cast<int32_t>(i) & 1) == 0) {
                 i = fmodf(i, 1.0f);

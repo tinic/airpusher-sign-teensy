@@ -147,6 +147,7 @@ void Effects::init() {
     static double switch_time = 0;
 
     if (!Timeline::instance().Scheduled(mainEffect)) {
+
         mainEffect.type = Timeline::Span::Effect;
         mainEffect.time = Timeline::SystemTime();
         mainEffect.duration = std::numeric_limits<double>::infinity();
@@ -228,6 +229,10 @@ void Effects::init() {
 
             static Timeline::Span glowEffect;
 
+            static float orientation = 0.0f;
+
+            orientation = random.get(0.0f, 2.0f * float(pi));
+
             if (!Timeline::instance().Scheduled(glowEffect)) {
                 glowEffect.type = Timeline::Span::Effect;
                 glowEffect.time = Timeline::SystemTime();
@@ -241,7 +246,7 @@ void Effects::init() {
                     float walk = float( ( now - glowEffect.time ) / glowEffect.duration ) - 0.5f;
 
                     auto calcBirdColor = [=](const vector::float4 &pos) {
-                        return glow_wipe.clamp(pos.x + walk);
+                        return glow_wipe.clamp((pos + walk).rotate2d(orientation).x);
                     };
 
                     auto iteratePort = [belowCol](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {

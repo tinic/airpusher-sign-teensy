@@ -37,6 +37,8 @@ public:
     }
 
 private:
+    static constexpr float pi = 3.14159265359f;
+
     class pseudo_random {
     public:
 
