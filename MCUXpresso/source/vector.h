@@ -237,7 +237,7 @@ namespace vector {
                           fmodf(this->w,b.w));
         }
 
-        float len() {
+        float len() const {
             return sqrtf(x*x + y*y + z*z);
         }
 
@@ -245,7 +245,7 @@ namespace vector {
             return sqrtf(a.x*a.x + a.y*a.y + a.z*a.z);
         }
 
-        float dist(const float4 &b) {
+        float dist(const float4 &b) const {
             float xd = fabsf(this->x - b.x);
             float yd = fabsf(this->y - b.y);
             float zd = fabsf(this->z - b.z);
@@ -287,14 +287,14 @@ namespace vector {
                           std::max(a.w, b.w));
         }
 
-        float4 pow(float v) {
+        float4 pow(float v) const {
             return float4(powf(this->x, v),
                           powf(this->y, v),
                           powf(this->z, v),
                           powf(this->w, v));
         }
 
-        float4 abs() {
+        float4 abs() const {
             return float4(fabsf(this->x),
                           fabsf(this->y),
                           fabsf(this->z),
