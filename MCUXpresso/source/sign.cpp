@@ -6,6 +6,7 @@
 #include "./debugled.h"
 
 #include "fsl_debug_console.h"
+#include "fsl_trng.h"
 
 #include "MIMXRT1062.h"
 

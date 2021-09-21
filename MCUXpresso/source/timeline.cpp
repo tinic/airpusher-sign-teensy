@@ -24,6 +24,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "clock_config.h"
 #include "fsl_debug_console.h"
+#include "fsl_trng.h"
 
 #include "MIMXRT1062.h"
 
@@ -327,5 +328,13 @@ void Timeline::init() {
 
     __enable_irq();
 
-    gen.seed(rd());
+	static uint8_t rndData[64];
+	memset(rndData, 0, sizeof(rndData));
+	TRNG_GetRandomData(TRNG, rndData, sizeof(rndData));
+
+    gen.seed(
+     (uint32_t(rndData[63])    ) |
+	 (uint32_t(rndData[62])<< 8) |
+	 (uint32_t(rndData[61])<<16) |
+	 (uint32_t(rndData[60])<<24));
 }

@@ -237,6 +237,16 @@
                   <data type="Version">2.8.0</data>
                </feature>
             </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.trng" description="TRNG Driver not found in the toolchain/IDE project. Project will not compile!" problem_level="2" source="Peripherals">
+               <feature name="enabled" evaluation="equal">
+                  <data type="Boolean">true</data>
+               </feature>
+            </dependency>
+            <dependency resourceType="SWComponent" resourceId="platform.drivers.trng" description="Unsupported version of the TRNG Driver in the toolchain/IDE project. Required: ${required_value}, actual: ${actual_value}. Project might not compile correctly." problem_level="1" source="Peripherals">
+               <feature name="version" evaluation="equivalent">
+                  <data type="Version">2.0.1</data>
+               </feature>
+            </dependency>
          </dependencies>
          <generated_project_files>
             <file path="board/peripherals.c" update_enabled="true"/>
@@ -280,6 +290,11 @@
                   <dependency resourceType="SWComponent" resourceId="middleware.usb.device.cdc.external" description="&quot;USB device CDC&quot; driver is missing in the project." problem_level="2" source="Peripherals:BOARD_InitPeripherals">
                      <feature name="enabled" evaluation="equal">
                         <data type="Boolean">true</data>
+                     </feature>
+                  </dependency>
+                  <dependency resourceType="ClockOutput" resourceId="IPG_CLK_ROOT" description="IPG_CLK_ROOT is inactive." problem_level="2" source="Peripherals:BOARD_InitPeripherals">
+                     <feature name="frequency" evaluation="greaterThan">
+                        <data type="Frequency" unit="Hz">0</data>
                      </feature>
                   </dependency>
                </dependencies>
@@ -369,6 +384,62 @@
                               </struct>
                            </struct>
                         </array>
+                     </config_set>
+                  </instance>
+                  <instance name="TRNG" uuid="473235f0-3a6c-4c10-88f4-f2b0b4b4bbbf" type="TRNG" type_id="trng_dd5b2a6f14d45ca091cf6c9a38560d5e" mode="General" peripheral="TRNG" enabled="true" comment="" custom_name_enabled="false" editing_lock="false">
+                     <config_set name="fsl_trng">
+                        <struct name="settings_trng_config_t">
+                           <setting name="clockMode" value="kTRNG_ClockModeRingOscillator"/>
+                           <setting name="clockSource" value="BusInterfaceClock"/>
+                           <struct name="struct_ring_oscillator">
+                              <setting name="ringOscDiv" value="kTRNG_RingOscDiv0"/>
+                              <setting name="sampleMode" value="kTRNG_SampleModeVonNeumann"/>
+                           </struct>
+                           <setting name="entropyDelay" value="3200"/>
+                           <setting name="sampleSize" value="2500"/>
+                           <setting name="sparseBitLimit" value="63"/>
+                           <setting name="retryCount" value="1"/>
+                           <setting name="lock" value="false"/>
+                           <struct name="struct_statistical_checks">
+                              <setting name="longRunMaxLimit" value="34"/>
+                              <struct name="monobitLimit">
+                                 <setting name="maximum" value="1384"/>
+                                 <setting name="minimum" value="1116"/>
+                              </struct>
+                              <struct name="runBit1Limit">
+                                 <setting name="maximum" value="405"/>
+                                 <setting name="minimum" value="227"/>
+                              </struct>
+                              <struct name="runBit2Limit">
+                                 <setting name="maximum" value="220"/>
+                                 <setting name="minimum" value="98"/>
+                              </struct>
+                              <struct name="runBit3Limit">
+                                 <setting name="maximum" value="125"/>
+                                 <setting name="minimum" value="37"/>
+                              </struct>
+                              <struct name="runBit4Limit">
+                                 <setting name="maximum" value="75"/>
+                                 <setting name="minimum" value="11"/>
+                              </struct>
+                              <struct name="runBit5Limit">
+                                 <setting name="maximum" value="47"/>
+                                 <setting name="minimum" value="1"/>
+                              </struct>
+                              <struct name="runBit6PlusLimit">
+                                 <setting name="maximum" value="47"/>
+                                 <setting name="minimum" value="1"/>
+                              </struct>
+                              <struct name="pokerLimit">
+                                 <setting name="maximum" value="26912"/>
+                                 <setting name="minimum" value="24445"/>
+                              </struct>
+                              <struct name="frequencyCountLimit">
+                                 <setting name="maximum" value="25600"/>
+                                 <setting name="minimum" value="1600"/>
+                              </struct>
+                           </struct>
+                        </struct>
                      </config_set>
                   </instance>
                </instances>

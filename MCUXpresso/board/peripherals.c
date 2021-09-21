@@ -68,6 +68,116 @@ static void NVIC_init(void) {
 } */
 
 /***********************************************************************************************************************
+ * TRNG initialization code
+ **********************************************************************************************************************/
+/* clang-format off */
+/* TEXT BELOW IS USED AS SETTING FOR TOOLS *************************************
+instance:
+- name: 'TRNG'
+- type: 'TRNG'
+- mode: 'General'
+- custom_name_enabled: 'false'
+- type_id: 'trng_dd5b2a6f14d45ca091cf6c9a38560d5e'
+- functional_group: 'BOARD_InitPeripherals'
+- peripheral: 'TRNG'
+- config_sets:
+  - fsl_trng:
+    - settings_trng_config_t:
+      - clockMode: 'kTRNG_ClockModeRingOscillator'
+      - clockSource: 'BusInterfaceClock'
+      - struct_ring_oscillator:
+        - ringOscDiv: 'kTRNG_RingOscDiv0'
+        - sampleMode: 'kTRNG_SampleModeVonNeumann'
+      - entropyDelay: '3200'
+      - sampleSize: '2500'
+      - sparseBitLimit: '63'
+      - retryCount: '1'
+      - lock: 'false'
+      - struct_statistical_checks:
+        - longRunMaxLimit: '34'
+        - monobitLimit:
+          - maximum: '1384'
+          - minimum: '1116'
+        - runBit1Limit:
+          - maximum: '405'
+          - minimum: '227'
+        - runBit2Limit:
+          - maximum: '220'
+          - minimum: '98'
+        - runBit3Limit:
+          - maximum: '125'
+          - minimum: '37'
+        - runBit4Limit:
+          - maximum: '75'
+          - minimum: '11'
+        - runBit5Limit:
+          - maximum: '47'
+          - minimum: '1'
+        - runBit6PlusLimit:
+          - maximum: '47'
+          - minimum: '1'
+        - pokerLimit:
+          - maximum: '26912'
+          - minimum: '24445'
+        - frequencyCountLimit:
+          - maximum: '25600'
+          - minimum: '1600'
+ * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS **********/
+/* clang-format on */
+const trng_config_t TRNG_config = {
+  .lock = false,
+  .clockMode = kTRNG_ClockModeRingOscillator,
+  .ringOscDiv = kTRNG_RingOscDiv0,
+  .sampleMode = kTRNG_SampleModeVonNeumann,
+  .entropyDelay = 3200,
+  .sampleSize = 2500,
+  .sparseBitLimit = 63,
+  .retryCount = 1,
+  .longRunMaxLimit = 34U,
+  .monobitLimit = {
+    .maximum = 1384UL,
+    .minimum = 1116UL
+  },
+  .runBit1Limit = {
+    .maximum = 405UL,
+    .minimum = 227UL
+  },
+  .runBit2Limit = {
+    .maximum = 220UL,
+    .minimum = 98UL
+  },
+  .runBit3Limit = {
+    .maximum = 125UL,
+    .minimum = 37UL
+  },
+  .runBit4Limit = {
+    .maximum = 75UL,
+    .minimum = 11UL
+  },
+  .runBit5Limit = {
+    .maximum = 47UL,
+    .minimum = 1UL
+  },
+  .runBit6PlusLimit = {
+    .maximum = 47UL,
+    .minimum = 1UL
+  },
+  .pokerLimit = {
+    .maximum = 26912UL,
+    .minimum = 24445UL
+  },
+  .frequencyCountLimit = {
+    .maximum = 25600UL,
+    .minimum = 1600UL
+  }
+};
+
+static void TRNG_init(void) {
+  /* Initialize TRNG. */
+  TRNG_Init(TRNG_PERIPHERAL, &TRNG_config);
+}
+
+/***********************************************************************************************************************
  * USB1 initialization code
  **********************************************************************************************************************/
 /* clang-format off */
@@ -158,6 +268,7 @@ static void USB1_init(void) {
 void BOARD_InitPeripherals(void)
 {
   /* Initialize components */
+  TRNG_init();
   USB1_init();
 }
 
