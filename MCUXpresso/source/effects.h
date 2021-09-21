@@ -77,12 +77,22 @@ private:
     } random;
 
     void basic(const Timeline::Span &span);
+
+    void spring(const Timeline::Span &span);
+    void summer(const Timeline::Span &span);
+    void autumn(const Timeline::Span &span);
+    void winter(const Timeline::Span &span);
+    void afterrain(const Timeline::Span &span);
+    void sunsetsunrise(const Timeline::Span &span);
+    void desertdream(const Timeline::Span &span);
+    void inthejungle(const Timeline::Span &span);
+
     void redglow(const Timeline::Span &span);
 
     void init();
     bool initialized = false;
 
-    size_t effect_count = 2;
+    size_t effect_count = 10;
     uint32_t scheduled_effect = 0;
 };
 

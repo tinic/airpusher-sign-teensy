@@ -68,7 +68,7 @@ static constexpr vector::float4 rainbow_bright_data[] = {
     color::srgb8_stop(0xff00ff, 0.83f),
     color::srgb8_stop(0xffc2b0, 0.92f),
     color::srgb8_stop(0xff0000, 1.00f)};
-static const color::gradient rainbow_bright(rainbow_bright_data,14);
+static const color::gradient rainbow_bright_gradient(rainbow_bright_data,14);
 
 static constexpr vector::float4 rainy_data[] = {
     color::srgb8_stop(0x000000, 0.00f),
@@ -76,7 +76,7 @@ static constexpr vector::float4 rainy_data[] = {
     color::srgb8_stop(0x65718a, 0.40f),
     color::srgb8_stop(0x6985b9, 0.53f),
     color::srgb8_stop(0xffffff, 1.00f)};
-static const color::gradient rainy(rainy_data,5);
+static const color::gradient rainy_gradient(rainy_data,5);
 
 static constexpr vector::float4 autumn_data[] = {
     color::srgb8_stop(0x000000, 0.00f),
@@ -87,7 +87,7 @@ static constexpr vector::float4 autumn_data[] = {
     color::srgb8_stop(0x7b5a54, 0.70f),
     color::srgb8_stop(0x9abf9e, 0.83f),
     color::srgb8_stop(0xffffff, 1.00f)};
-static const color::gradient autumn(autumn_data,8);
+static const color::gradient autumn_gradient(autumn_data,8);
 
 static constexpr vector::float4 winter_data[] = {
     color::srgb8_stop(0xa3eed6, 0.00f),
@@ -95,14 +95,14 @@ static constexpr vector::float4 winter_data[] = {
     color::srgb8_stop(0xff96d0, 0.39f),
     color::srgb8_stop(0xcb81d6, 0.65f),
     color::srgb8_stop(0x4b51f5, 1.00f)};
-static const color::gradient winter(winter_data,5);
+static const color::gradient winter_gradient(winter_data,5);
 
 static constexpr vector::float4 happy_data[] = {
     color::srgb8_stop(0x22c1c3, 0.00f),
     color::srgb8_stop(0x4387c0, 0.33f),
     color::srgb8_stop(0xbb6161, 0.66f),
     color::srgb8_stop(0xfdbb2d, 1.00f)};
-static const color::gradient happy(happy_data,4);
+static const color::gradient happy_gradient(happy_data,4);
 
 static constexpr vector::float4 evening_data[] = {
     color::srgb8_stop(0x000000, 0.00f),
@@ -110,7 +110,7 @@ static constexpr vector::float4 evening_data[] = {
     color::srgb8_stop(0xbb6161, 0.90f),
     color::srgb8_stop(0xff9500, 0.95f),
     color::srgb8_stop(0xffffff, 1.00f)};
-static const color::gradient evening(evening_data,5);
+static const color::gradient evening_gradient(evening_data,5);
 
 static constexpr vector::float4 desertdream_data[] = {
     color::srgb8_stop(0x4d5951, 0.00f),
@@ -119,7 +119,7 @@ static constexpr vector::float4 desertdream_data[] = {
     color::srgb8_stop(0xa15123, 0.63f),
     color::srgb8_stop(0xd6aa68, 0.84f),
     color::srgb8_stop(0xf7d6b4, 1.00f)};
-static const color::gradient desertdream(desertdream_data,6);
+static const color::gradient desertdream_gradient(desertdream_data,6);
 
 static constexpr vector::float4 inthejungle_data[] = {
     color::srgb8_stop(0x135e46, 0.00f),
@@ -128,7 +128,7 @@ static constexpr vector::float4 inthejungle_data[] = {
     color::srgb8_stop(0xe3c6ad, 0.70f),
     color::srgb8_stop(0xd09d7b, 0.90f),
     color::srgb8_stop(0xb67b65, 1.00f)};
-static const color::gradient inthejungle(inthejungle_data,6);
+static const color::gradient inthejungle_gradient(inthejungle_data,6);
 
 static constexpr vector::float4 darklight_data[] = {
     color::srgb8_stop(0x000000, 0.00f),
@@ -136,7 +136,7 @@ static constexpr vector::float4 darklight_data[] = {
     color::srgb8_stop(0x2ea61b, 0.65f),
     color::srgb8_stop(0x478966, 0.70f),
     color::srgb8_stop(0x000000, 1.00f)};
-static const color::gradient darklight(darklight_data,5);
+static const color::gradient darklight_gradient(darklight_data,5);
 
 static constexpr vector::float4 glow_wipe_data[] = {
     color::srgb8_stop({0x00,0x00,0x00}, 0.00f),
@@ -144,7 +144,7 @@ static constexpr vector::float4 glow_wipe_data[] = {
     color::srgb8_stop({0xff,0xff,0xff}, 0.50f),
     color::srgb8_stop({0x00,0x00,0x00}, 0.55f),
     color::srgb8_stop({0x00,0x00,0x00}, 1.00f)};
-static const color::gradient glow_wipe(glow_wipe_data,5);
+static const color::gradient glow_wipe_gradient(glow_wipe_data,5);
 
 static constexpr vector::float4 segment_color [] = {
 	color::srgb8({0xFF,0xFF,0xFF}),
@@ -175,11 +175,11 @@ void Effects::basic(const Timeline::Span &span) {
     float walk = (1.0f - static_cast<float>(frac(now * speed)));
 
     auto calcRingColor = [=](const vector::float4 &pos) {
-        return gradient_rainbow.reflect(pos.w + walk * 4);
+        return rainbow_bright_gradient.reflect(pos.w + walk * 4);
     };
 
     auto calcBirdColor = [=](const vector::float4 &pos) {
-        return gradient_rainbow.reflect(pos.x + walk * 4);
+        return rainbow_bright_gradient.reflect(pos.x + walk * 4);
     };
 
     auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
@@ -231,6 +231,272 @@ void Effects::redglow(const Timeline::Span &span) {
     iteratePort(5, calcRingColor);
 }
 
+void Effects::spring(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        float x = sinf((pos.x + 1.0f) * 0.25f + float(now) * 0.050f);
+        float y = cosf((pos.y + 1.0f) * 0.25f + float(now) * 0.055f);
+        float l = 1.0f - pos.xy00().len() + 0.5f;
+        return rainbow_bright_gradient.reflect(x * y) * l;
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
+void Effects::summer(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        float x0 = sinf((pos.x + 1.0f) * 0.5f + float(now) * 0.050f);
+        float y0 = cosf((pos.y + 1.0f) * 0.5f + float(now) * 0.055f);
+        float x1 = sinf((pos.x + 1.0f) * 10.0f + float(now) * 0.50f);
+        float y1 = cosf((pos.y + 1.0f) * 10.0f + float(now) * 0.55f);
+        return (rainbow_bright_gradient.reflect(x0 * y0) + vector::float4::one()) * (x1 * y1);
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
+void Effects::autumn(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        float x0 = sinf((pos.x + 1.0f) * 0.5f + float(now) * 0.050f);
+        float y0 = cosf((pos.y + 1.0f) * 0.5f + float(now) * 0.055f);
+        float x1 = sinf((pos.x + 1.0f) * 10.0f + float(now) * 0.50f);
+        float y1 = cosf((pos.y + 1.0f) * 10.0f + float(now) * 0.55f);
+        return (rainy_gradient.clamp(x1 * y1) + autumn_gradient.reflect(x0 * y0)) * vector::float4::half();
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
+void Effects::winter(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        double x0 = sin((double(pos.x) + 1.0) * 0.5 + now * 0.050);
+        double y0 = cos((double(pos.y) + 1.0) * 0.5 + now * 0.055);
+        double x1 = sin((double(pos.x) + 1.0) * 0.25 + now * 0.050);
+        double y1 = cos((double(pos.y) + 1.0) * 0.25 + now * 0.055);
+        double l = 1.0 - double(pos.xy00().len()) + 0.5;
+        return winter_gradient.reflect(float(x1 * y1)) * rainy_gradient.reflect(float(x0 * y0)) * float(l);
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
+
+void Effects::afterrain(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        double b = (sin(double(pos.x) * 4.0 + now * 0.20) + cos(double(pos.y) * 4.0 + now * 0.20)) * 0.25;
+        vector::float4 p = (pos.rotate2d(float(now * 0.20)) + vector::float4(float(now * 0.20), 0.0f, 0.0f, 0.0f)) * 0.05f;
+        return rainbow_bright_gradient.repeat(p.x) + vector::float4(float(b),float(b),float(b),float(b));
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
+void Effects::sunsetsunrise(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        double a = std::max(0.0, cos(double(pos.x) + sin(now * 0.10)) + sin(double(pos.y) + cos(now * 0.10) ) - 1.0);
+        vector::float4 p = (pos.rotate2d(float(now * 0.30)) + vector::float4(float(now * 0.30), 0.0f, 0.0f, 0.0f) ) * 0.05f;
+        double l = 1.0 - double(pos.xy00().len()) + 0.5;
+        vector::float4 c0 = happy_gradient.reflect(p.x) * float(l);
+        vector::float4 c1 = evening_gradient.clamp(float(a));
+        return vector::float4::lerp(c0, c1, float(a));
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
+void Effects::desertdream(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        double x0 = sin((double(pos.x) + 1.0) * 0.5 + now * 0.050);
+        double y0 = cos((double(pos.y )+ 1.0) * 0.5 + now * 0.055);
+        double x1 = sin((double(pos.x) + 1.0) * 0.25 + now * 0.050);
+        double y1 = cos((double(pos.y) + 1.0) * 0.25 + now * 0.055);
+        double l = 1.0 - double(pos.xy00().len()) + 0.5;
+        return (desertdream_gradient.reflect(float(x1 * y1)) * float(l)) + desertdream_gradient.reflect(float(x0 * y0));
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
+void Effects::inthejungle(const Timeline::Span &span) {
+
+    double now = Timeline::SystemTime() - span.time;
+
+    auto calcRingColor = [=](const vector::float4 &pos) {
+        return gradient_rainbow.reflect(pos.w);
+    };
+
+    auto calcBirdColor = [=](const vector::float4 &pos) {
+        double a = std::max(0.0, cos(double(pos.x) + sin(now * 0.10)) + sin(double(pos.y) + cos(now * 0.10))-1.0);
+        vector::float4 p = (pos.rotate2d(float(now * 0.30)) + vector::float4(float(now * 0.30), 0.0f, 0.0f, 0.0f) ) * 0.05f;
+        double l = 1.0 - double(pos.xy00().len()) + 0.5;
+        vector::float4 c0 = inthejungle_gradient.reflect(p.x) * float(l);
+        vector::float4 c1 = darklight_gradient.clamp(float(a));
+        return vector::float4::lerp(c0, c1, float(a));
+    };
+
+    auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
+        size_t portLedCount = Leds::instance().portLedCount(port);
+        Leds &leds(Leds::instance());
+        for (size_t d = 0; d < portLedCount ; d++) {
+            leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+        }
+    };
+
+    iteratePort(0, calcBirdColor);
+    iteratePort(1, calcBirdColor);
+    iteratePort(2, calcBirdColor);
+    iteratePort(3, calcBirdColor);
+    iteratePort(4, calcBirdColor);
+
+    iteratePort(5, calcRingColor);
+}
+
 void Effects::init() {
 
     random.set_seed(0x1ED51ED5);
@@ -263,6 +529,30 @@ void Effects::init() {
                     break;
                     case 1:
                         redglow(span);
+                    break;
+                    case 2:
+                        spring(span);
+                    break;
+                    case 3:
+                        summer(span);
+                    break;
+                    case 4:
+                        autumn(span);
+                    break;
+                    case 5:
+                        winter(span);
+                    break;
+                    case 6:
+                        afterrain(span);
+                    break;
+                    case 7:
+                        sunsetsunrise(span);
+                    break;
+                    case 8:
+                        desertdream(span);
+                    break;
+                    case 9:
+                        inthejungle(span);
                     break;
                 }
             };
@@ -344,7 +634,7 @@ void Effects::init() {
                     float walk = float( ( now - glowEffect.time ) / glowEffect.duration ) - 0.5f;
 
                     auto calcBirdColor = [=](const vector::float4 &pos) {
-                        return glow_wipe.clamp((pos + walk).rotate2d(orientation).x);
+                        return glow_wipe_gradient.clamp((pos + walk).rotate2d(orientation).x);
                     };
 
                     auto iteratePort = [belowCol](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
