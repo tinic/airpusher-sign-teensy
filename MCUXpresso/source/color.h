@@ -48,6 +48,8 @@ namespace color {
             a(0){
         }
 
+        constexpr rgba(uint32_t);
+
         constexpr rgba(const rgba &from) :
             r(from.r),
             g(from.g),
@@ -107,6 +109,17 @@ namespace color {
                                 a < 384 ? ( ( a * 256 ) / 384 ) : a);
     }
 
+    template<> constexpr rgba<uint8_t>::rgba(uint32_t color) {
+        r = ( color >> 16 ) & 0xFF;
+        g = ( color >>  8 ) & 0xFF;
+        b = ( color >>  0 ) & 0xFF;
+    }
+
+    template<> constexpr rgba<uint16_t>::rgba(uint32_t color) {
+        r = ( color >> 16 ) & 0xFF; r |= r << 8;
+        g = ( color >>  8 ) & 0xFF; g |= g << 8;
+        b = ( color >>  0 ) & 0xFF; b |= b << 8;
+    }
 
     template<> __attribute__((always_inline)) inline float rgba<float>::clamp_to_type(float v) {
         return v;
@@ -285,6 +298,10 @@ namespace color {
 
     constexpr vector::float4 srgb8_stop(const rgba<uint8_t> &color, float stop) {
         return vector::float4(convert().sRGB2CIELUV(color), stop);
+    }
+
+    constexpr vector::float4 srgb8_stop(uint32_t color, float stop) {
+        return vector::float4(convert().sRGB2CIELUV(rgba<uint8_t>(color)), stop);
     }
 }
 
