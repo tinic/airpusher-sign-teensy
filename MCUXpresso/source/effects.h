@@ -77,7 +77,7 @@ private:
     } random;
 
     void basic(const Timeline::Span &span);
-    void colorful(const Timeline::Span &span);
+    void redglow(const Timeline::Span &span);
 
     void init();
     bool initialized = false;

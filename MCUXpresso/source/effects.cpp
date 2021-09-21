@@ -43,13 +43,23 @@ static constexpr vector::float4 gradient_rainbow_data[] = {
     color::srgb8_stop({0xff,0x00,0x00}, 1.00f)};
 static const color::gradient gradient_rainbow(gradient_rainbow_data,7);
 
+static constexpr vector::float4 red_glow_data[] = {
+    color::srgb8_stop({0xff,0x00,0x00}, 0.00f),
+    color::srgb8_stop({0xff,0x1f,0x00}, 0.16f),
+    color::srgb8_stop({0xff,0x00,0x00}, 0.33f),
+    color::srgb8_stop({0xff,0x00,0x1f}, 0.50f),
+    color::srgb8_stop({0xff,0x00,0x00}, 0.66f),
+    color::srgb8_stop({0xff,0x0f,0x0f}, 0.83f),
+    color::srgb8_stop({0xff,0x00,0x00}, 1.00f)};
+static const color::gradient red_glow(red_glow_data,7);
+
 static constexpr vector::float4 glow_wipe_data[] = {
     color::srgb8_stop({0x00,0x00,0x00}, 0.00f),
     color::srgb8_stop({0x00,0x00,0x00}, 0.45f),
     color::srgb8_stop({0xff,0xff,0xff}, 0.50f),
     color::srgb8_stop({0x00,0x00,0x00}, 0.55f),
     color::srgb8_stop({0x00,0x00,0x00}, 1.00f)};
-static const color::gradient glow_wipe(glow_wipe_data,3);
+static const color::gradient glow_wipe(glow_wipe_data,5);
 
 static constexpr vector::float4 segment_color [] = {
 	color::srgb8({0xFF,0xFF,0xFF}),
@@ -104,7 +114,7 @@ void Effects::basic(const Timeline::Span &span) {
     iteratePort(5, calcRingColor);
 }
 
-void Effects::colorful(const Timeline::Span &span) {
+void Effects::redglow(const Timeline::Span &span) {
 
     double now = Timeline::SystemTime() - span.time;
 
@@ -112,11 +122,11 @@ void Effects::colorful(const Timeline::Span &span) {
     float walk = (1.0f - static_cast<float>(frac(now * speed)));
 
     auto calcRingColor = [=](const vector::float4 &pos) {
-        return gradient_rainbow.reflect(pos.w + walk);
+        return red_glow.reflect(pos.w + walk);
     };
 
     auto calcBirdColor = [=](const vector::float4 &pos) {
-        return gradient_rainbow.reflect(pos.x + walk);
+        return red_glow.reflect(pos.x + walk);
     };
 
     auto iteratePort = [](size_t port, std::function<const vector::float4(const vector::float4 &)> calc) {
@@ -165,6 +175,9 @@ void Effects::init() {
                 switch (effect) {
                     case 0:
                         basic(span);
+                    break;
+                    case 1:
+                        redglow(span);
                     break;
                 }
             };
