@@ -33,27 +33,25 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <limits>
 #include <math.h>
 
-static constexpr vector::float4 gradient_rainbow_data[] = {
+static constexpr color::gradient gradient_rainbow({
     color::srgb8_stop({0xff,0x00,0x00}, 0.00f),
     color::srgb8_stop({0xff,0xff,0x00}, 0.16f),
     color::srgb8_stop({0x00,0xff,0x00}, 0.33f),
     color::srgb8_stop({0x00,0xff,0xff}, 0.50f),
     color::srgb8_stop({0x00,0x00,0xff}, 0.66f),
     color::srgb8_stop({0xff,0x00,0xff}, 0.83f),
-    color::srgb8_stop({0xff,0x00,0x00}, 1.00f)};
-static const color::gradient gradient_rainbow(gradient_rainbow_data,7);
+    color::srgb8_stop({0xff,0x00,0x00}, 1.00f)});
 
-static constexpr vector::float4 red_glow_data[] = {
+static constexpr color::gradient red_glow({
     color::srgb8_stop({0xff,0x00,0x00}, 0.00f),
     color::srgb8_stop({0xff,0x1f,0x00}, 0.16f),
     color::srgb8_stop({0xff,0x00,0x00}, 0.33f),
     color::srgb8_stop({0xff,0x00,0x1f}, 0.50f),
     color::srgb8_stop({0xff,0x00,0x00}, 0.66f),
     color::srgb8_stop({0xff,0x0f,0x0f}, 0.83f),
-    color::srgb8_stop({0xff,0x00,0x00}, 1.00f)};
-static const color::gradient red_glow(red_glow_data,7);
+    color::srgb8_stop({0xff,0x00,0x00}, 1.00f)});
 
-static constexpr vector::float4 rainbow_bright_data[] = {
+static const color::gradient rainbow_bright_gradient({
     color::srgb8_stop(0xff0000, 0.00f),
     color::srgb8_stop(0xffbd96, 0.10f),
     color::srgb8_stop(0xffff00, 0.17f),
@@ -67,18 +65,16 @@ static constexpr vector::float4 rainbow_bright_data[] = {
     color::srgb8_stop(0x9c3fff, 0.75f),
     color::srgb8_stop(0xff00ff, 0.83f),
     color::srgb8_stop(0xffc2b0, 0.92f),
-    color::srgb8_stop(0xff0000, 1.00f)};
-static const color::gradient rainbow_bright_gradient(rainbow_bright_data,14);
+    color::srgb8_stop(0xff0000, 1.00f)});
 
-static constexpr vector::float4 rainy_data[] = {
+static constexpr color::gradient rainy_gradient({
     color::srgb8_stop(0x000000, 0.00f),
     color::srgb8_stop(0x413a40, 0.20f),
     color::srgb8_stop(0x65718a, 0.40f),
     color::srgb8_stop(0x6985b9, 0.53f),
-    color::srgb8_stop(0xffffff, 1.00f)};
-static const color::gradient rainy_gradient(rainy_data,5);
+    color::srgb8_stop(0xffffff, 1.00f)});
 
-static constexpr vector::float4 autumn_data[] = {
+static constexpr color::gradient autumn_gradient({
     color::srgb8_stop(0x000000, 0.00f),
     color::srgb8_stop(0x351e10, 0.13f),
     color::srgb8_stop(0x58321a, 0.25f),
@@ -86,65 +82,57 @@ static constexpr vector::float4 autumn_data[] = {
     color::srgb8_stop(0x651420, 0.56f),
     color::srgb8_stop(0x7b5a54, 0.70f),
     color::srgb8_stop(0x9abf9e, 0.83f),
-    color::srgb8_stop(0xffffff, 1.00f)};
-static const color::gradient autumn_gradient(autumn_data,8);
+    color::srgb8_stop(0xffffff, 1.00f)});
 
-static constexpr vector::float4 winter_data[] = {
+static constexpr color::gradient winter_gradient({
     color::srgb8_stop(0xa3eed6, 0.00f),
     color::srgb8_stop(0xdcbcd4, 0.21f),
     color::srgb8_stop(0xff96d0, 0.39f),
     color::srgb8_stop(0xcb81d6, 0.65f),
-    color::srgb8_stop(0x4b51f5, 1.00f)};
-static const color::gradient winter_gradient(winter_data,5);
+    color::srgb8_stop(0x4b51f5, 1.00f)});
 
-static constexpr vector::float4 happy_data[] = {
+static constexpr color::gradient happy_gradient({
     color::srgb8_stop(0x22c1c3, 0.00f),
     color::srgb8_stop(0x4387c0, 0.33f),
     color::srgb8_stop(0xbb6161, 0.66f),
-    color::srgb8_stop(0xfdbb2d, 1.00f)};
-static const color::gradient happy_gradient(happy_data,4);
+    color::srgb8_stop(0xfdbb2d, 1.00f)});
 
-static constexpr vector::float4 evening_data[] = {
+static constexpr color::gradient evening_gradient({
     color::srgb8_stop(0x000000, 0.00f),
     color::srgb8_stop(0x4387c0, 0.80f),
     color::srgb8_stop(0xbb6161, 0.90f),
     color::srgb8_stop(0xff9500, 0.95f),
-    color::srgb8_stop(0xffffff, 1.00f)};
-static const color::gradient evening_gradient(evening_data,5);
+    color::srgb8_stop(0xffffff, 1.00f)});
 
-static constexpr vector::float4 desertdream_data[] = {
+static constexpr color::gradient desertdream_gradient({
     color::srgb8_stop(0x4d5951, 0.00f),
     color::srgb8_stop(0x372a25, 0.19f),
     color::srgb8_stop(0x863c25, 0.41f),
     color::srgb8_stop(0xa15123, 0.63f),
     color::srgb8_stop(0xd6aa68, 0.84f),
-    color::srgb8_stop(0xf7d6b4, 1.00f)};
-static const color::gradient desertdream_gradient(desertdream_data,6);
+    color::srgb8_stop(0xf7d6b4, 1.00f)});
 
-static constexpr vector::float4 inthejungle_data[] = {
+static constexpr color::gradient inthejungle_gradient({
     color::srgb8_stop(0x135e46, 0.00f),
     color::srgb8_stop(0x478966, 0.20f),
     color::srgb8_stop(0x73a788, 0.40f),
     color::srgb8_stop(0xe3c6ad, 0.70f),
     color::srgb8_stop(0xd09d7b, 0.90f),
-    color::srgb8_stop(0xb67b65, 1.00f)};
-static const color::gradient inthejungle_gradient(inthejungle_data,6);
+    color::srgb8_stop(0xb67b65, 1.00f)});
 
-static constexpr vector::float4 darklight_data[] = {
+static constexpr color::gradient darklight_gradient({
     color::srgb8_stop(0x000000, 0.00f),
     color::srgb8_stop(0x135e46, 0.50f),
     color::srgb8_stop(0x2ea61b, 0.65f),
     color::srgb8_stop(0x478966, 0.70f),
-    color::srgb8_stop(0x000000, 1.00f)};
-static const color::gradient darklight_gradient(darklight_data,5);
+    color::srgb8_stop(0x000000, 1.00f)});
 
-static constexpr vector::float4 glow_wipe_data[] = {
+static constexpr color::gradient glow_wipe_gradient({
     color::srgb8_stop({0x00,0x00,0x00}, 0.00f),
     color::srgb8_stop({0x00,0x00,0x00}, 0.45f),
     color::srgb8_stop({0xff,0xff,0xff}, 0.50f),
     color::srgb8_stop({0x00,0x00,0x00}, 0.55f),
-    color::srgb8_stop({0x00,0x00,0x00}, 1.00f)};
-static const color::gradient glow_wipe_gradient(glow_wipe_data,5);
+    color::srgb8_stop({0x00,0x00,0x00}, 1.00f)});
 
 static constexpr vector::float4 segment_color [] = {
 	color::srgb8({0xFF,0xFF,0xFF}),
