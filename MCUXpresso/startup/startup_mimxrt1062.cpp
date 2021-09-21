@@ -687,6 +687,8 @@ void ResetISR(void) {
     // The stack pointer here is adjusted down to reflect the size of ITC memory.
     __asm volatile ("MSR MSP, %0" : : "r" (uint32_t(&_adjustedStackTop)) : );
 
+    PMU->MISC0 |= PMU_MISC0_REFTOP_SELFBIASOFF(1);
+
 #if defined (__USE_CMSIS)
 // If __USE_CMSIS defined, then call CMSIS SystemInit code
     SystemInit();
