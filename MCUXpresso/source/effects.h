@@ -92,7 +92,7 @@ private:
     void init();
     bool initialized = false;
 
-    size_t effect_count = 10;
+    size_t effect_count = 2;
     uint32_t scheduled_effect = 0;
 };
 

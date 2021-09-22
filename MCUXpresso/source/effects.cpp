@@ -174,7 +174,7 @@ void Effects::basic(const Timeline::Span &span) {
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.x * 0.25f + float(now) * 0.125f);
+        return gradient_rainbow.reflect(pos.x * 0.25f + float(now) * 0.125f) * 0.5f;
     };
 
     auto iteratePort = [](size_t port, std::function<const float4(const float4 &)> calc) {
@@ -611,9 +611,9 @@ void Effects::init() {
     if (!Timeline::instance().Scheduled(glowRepeater)) {
 
         glowRepeater.type = Timeline::Span::Interval;
-        glowRepeater.interval = 2.0;
-        glowRepeater.intervalFuzz = 0.00;
-        glowRepeater.time = Timeline::SystemTime() + 0.0; // Initial time
+        glowRepeater.interval = 10.0;
+        glowRepeater.intervalFuzz = 10.00;
+        glowRepeater.time = Timeline::SystemTime() + 10.0; // Initial time
 
         glowRepeater.startFunc = [this](Timeline::Span &) {
 
