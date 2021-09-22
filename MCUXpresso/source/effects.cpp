@@ -559,7 +559,7 @@ void Effects::init() {
                 }
             };
 
-            double blend_duration = 0.5;
+            double blend_duration = 2.0;
             double now = Timeline::SystemTime();
             
             if ((now - switch_time) < blend_duration) {
