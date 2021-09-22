@@ -29,7 +29,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <algorithm>
 #include <math.h>
 
-static constexpr size_t circleLeds = 144;
+static constexpr size_t circleLeds = Leds::maxLedsPerPort;
 
 struct Segment {
 	size_t count;

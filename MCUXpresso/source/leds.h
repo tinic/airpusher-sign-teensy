@@ -44,7 +44,7 @@ public:
     	ports[p].leds[i].col = col;
     }
 
-    static constexpr size_t maxLedsPerPort = 144;
+    static constexpr size_t maxLedsPerPort = 158;
     static constexpr size_t maxPorts = 6; // Up to 8 on Teensy 4.0
     static constexpr size_t maxBytesPerLed = 6; // WS2816 has 6 bytes, WS2812 has 4
 
