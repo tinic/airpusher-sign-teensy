@@ -320,6 +320,18 @@ namespace vector {
             return float4(this->z, this->z, 0.0, 0.0);
         }
 
+        constexpr float4 x000() const {
+            return float4(this->x, 0.0, 0.0, 0.0);
+        }
+
+        constexpr float4 y000() const {
+            return float4(this->y, 0.0, 0.0, 0.0);
+        }
+
+        constexpr float4 z000() const {
+            return float4(this->z, 0.0, 0.0, 0.0);
+        }
+
         constexpr float4 xy00() const {
             return float4(this->x, this->y, 0.0, 0.0);
         }

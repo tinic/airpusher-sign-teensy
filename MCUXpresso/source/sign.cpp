@@ -15,6 +15,9 @@ void sign_entry() {
     LedsPWMDMA::instance();
     Leds::instance();
     Effects::instance();
+    for (;Timeline::SystemTime() < 1.0;) {
+        
+    }
     for(;;) {
         __WFI();
         //PRINTF("3 %f\r\n", Timeline::SystemTime());

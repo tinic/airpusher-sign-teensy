@@ -133,10 +133,16 @@ static constexpr gradient darklight_gradient({
 
 static constexpr gradient glow_wipe_gradient({
     srgb8_stop({0x00,0x00,0x00}, 0.00f),
-    srgb8_stop({0x00,0x00,0x00}, 0.45f),
+    srgb8_stop({0x00,0x00,0x00}, 0.42f),
     srgb8_stop({0xff,0xff,0xff}, 0.50f),
-    srgb8_stop({0x00,0x00,0x00}, 0.55f),
+    srgb8_stop({0x00,0x00,0x00}, 0.58f),
     srgb8_stop({0x00,0x00,0x00}, 1.00f)});
+
+static constexpr gradient half_white_gradient({
+    srgb8_stop({0x00,0x00,0x00}, 0.00f),
+    srgb8_stop({0x00,0x00,0x00}, 0.50f),
+    srgb8_stop({0xff,0xff,0xff}, 0.51f),
+    srgb8_stop({0xff,0xff,0xff}, 1.00f)});
 
 static constexpr float4 segment_color [] = {
 	srgb8({0xFF,0xFF,0xFF}),
@@ -163,15 +169,12 @@ void Effects::basic(const Timeline::Span &span) {
 
     double now = Timeline::SystemTime() - span.time;
 
-    const double speed = 0.25;
-    float walk = (1.0f - static_cast<float>(frac(now * speed)));
-
     auto calcRingColor = [=](const float4 &pos) {
-        return rainbow_bright_gradient.reflect(pos.w + walk * 4);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
-        return rainbow_bright_gradient.reflect(pos.x + walk * 4);
+        return gradient_rainbow.reflect(pos.x * 0.25f + float(now) * 0.125f);
     };
 
     auto iteratePort = [](size_t port, std::function<const float4(const float4 &)> calc) {
@@ -199,7 +202,7 @@ void Effects::redglow(const Timeline::Span &span) {
     float walk = (1.0f - static_cast<float>(frac(now * speed)));
 
     auto calcRingColor = [=](const float4 &pos) {
-        return red_glow.reflect(pos.w + walk);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -228,7 +231,7 @@ void Effects::spring(const Timeline::Span &span) {
     double now = Timeline::SystemTime() - span.time;
 
     auto calcRingColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.w);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -260,7 +263,7 @@ void Effects::summer(const Timeline::Span &span) {
     double now = Timeline::SystemTime() - span.time;
 
     auto calcRingColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.w);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -293,7 +296,7 @@ void Effects::autumn(const Timeline::Span &span) {
     double now = Timeline::SystemTime() - span.time;
 
     auto calcRingColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.w);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -326,7 +329,7 @@ void Effects::winter(const Timeline::Span &span) {
     double now = Timeline::SystemTime() - span.time;
 
     auto calcRingColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.w);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -361,7 +364,7 @@ void Effects::afterrain(const Timeline::Span &span) {
     double now = Timeline::SystemTime() - span.time;
 
     auto calcRingColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.w);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -392,7 +395,7 @@ void Effects::sunsetsunrise(const Timeline::Span &span) {
     double now = Timeline::SystemTime() - span.time;
 
     auto calcRingColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.w);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -426,7 +429,7 @@ void Effects::desertdream(const Timeline::Span &span) {
     double now = Timeline::SystemTime() - span.time;
 
     auto calcRingColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.w);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -460,7 +463,7 @@ void Effects::inthejungle(const Timeline::Span &span) {
     double now = Timeline::SystemTime() - span.time;
 
     auto calcRingColor = [=](const float4 &pos) {
-        return gradient_rainbow.reflect(pos.w);
+        return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
     };
 
     auto calcBirdColor = [=](const float4 &pos) {
@@ -593,8 +596,8 @@ void Effects::init() {
     static Timeline::Span effectSwitcher;
     if (!Timeline::instance().Scheduled(effectSwitcher)) {
         effectSwitcher.type = Timeline::Span::Interval;
-        effectSwitcher.interval = 120.0;
-        effectSwitcher.time = Timeline::SystemTime() + 120.0; // Initial time
+        effectSwitcher.interval = 20.0;
+        effectSwitcher.time = Timeline::SystemTime() +  20.0; // Initial time
 
         effectSwitcher.startFunc = [](Timeline::Span &) {
             PRINTF("Switch effect at %f\r\n", Timeline::SystemTime());
@@ -608,9 +611,9 @@ void Effects::init() {
     if (!Timeline::instance().Scheduled(glowRepeater)) {
 
         glowRepeater.type = Timeline::Span::Interval;
-        glowRepeater.interval = 60.0;
-        glowRepeater.intervalFuzz = 60.00;
-        glowRepeater.time = Timeline::SystemTime() + 60.0; // Initial time
+        glowRepeater.interval = 2.0;
+        glowRepeater.intervalFuzz = 0.00;
+        glowRepeater.time = Timeline::SystemTime() + 0.0; // Initial time
 
         glowRepeater.startFunc = [this](Timeline::Span &) {
 
@@ -630,10 +633,10 @@ void Effects::init() {
 
                     double now = Timeline::SystemTime() - span.time;
 
-                    float walk = float( ( now - glowEffect.time ) / glowEffect.duration ) - 0.5f;
+                    float walk = ( float( ( now ) / glowEffect.duration ) - 0.5f ) * 2.0f;
 
-                    auto calcBirdColor = [=](const float4 &pos) {
-                        return glow_wipe_gradient.clamp((pos + walk).rotate2d(orientation).x);
+                    auto calcWipeColor = [=](const float4 &pos) {
+                        return glow_wipe_gradient.clamp((pos.rotate2d(orientation) * 0.5f + 0.5f).x + walk);
                     };
 
                     auto iteratePort = [belowCol](size_t port, std::function<const float4(const float4 &)> calc) {
@@ -644,11 +647,11 @@ void Effects::init() {
                         }
                     };
 
-                    iteratePort(0, calcBirdColor);
-                    iteratePort(1, calcBirdColor);
-                    iteratePort(2, calcBirdColor);
-                    iteratePort(3, calcBirdColor);
-                    iteratePort(4, calcBirdColor);
+                    iteratePort(0, calcWipeColor);
+                    iteratePort(1, calcWipeColor);
+                    iteratePort(2, calcWipeColor);
+                    iteratePort(3, calcWipeColor);
+                    iteratePort(4, calcWipeColor);
 
                 };
                 glowEffect.commitFunc = [this](Timeline::Span &) {

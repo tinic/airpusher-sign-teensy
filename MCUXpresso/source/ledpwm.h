@@ -59,7 +59,7 @@ public:
     static __attribute__((section("DmaData"))) uint16_t pwmBuffer[pageCount][portCount][stripBytes * 8 + frontTailPadding] __attribute__ ((aligned(32)));
 
     static constexpr uint8_t cmp_thl = uint8_t(1.25e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
-    static constexpr uint8_t cmp_t0h = uint8_t(0.35e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
+    static constexpr uint8_t cmp_t0h = uint8_t(0.25e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
     static constexpr uint8_t cmp_t1h = uint8_t(0.70e-6 * double(BOARD_BOOTCLOCKRUN_IPG_CLK_ROOT));
 
     void resetHardware();
