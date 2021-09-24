@@ -511,6 +511,82 @@ void Effects::init() {
 
     if (!Timeline::instance().Scheduled(mainEffect)) {
 
+        effects[0].startFunc = [this](Effect &effect, Timeline::Span &) {
+            effect.orientation = random.get(0.0f, 2.0f * float(pi));
+        };
+
+        effects[0].calcFunc = [this](Effect &effect, Timeline::Span &span) {
+            double now = Timeline::SystemTime() - span.time;
+
+            auto calcRingColor = [=](const float4 &pos) {
+                return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
+            };
+
+            auto calcBirdColor = [=](const float4 &pos) {
+                return gradient_rainbow.reflect(pos.rotate2d(effect.orientation).x * 0.25f + float(now) * 0.0625f) * 0.5f;
+            };
+
+            auto iteratePort = [](size_t port, std::function<const float4(const float4 &)> calc) {
+                size_t portLedCount = Leds::instance().portLedCount(port);
+                Leds &leds(Leds::instance());
+                for (size_t d = 0; d < portLedCount ; d++) {
+                    //Leds::instance().setCol(port, d, segment_color[Leds::instance().seg(port,d)]);
+                    leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+                }
+            };
+
+            iteratePort(0, calcBirdColor);
+            iteratePort(1, calcBirdColor);
+            iteratePort(2, calcBirdColor);
+            iteratePort(3, calcBirdColor);
+            iteratePort(4, calcBirdColor);
+            iteratePort(5, calcRingColor);
+        };
+
+        effects[0].doneFunc = [this](Effect &, Timeline::Span &) {
+        };
+
+        effects[0].active = true;
+        effects[0].time = Timeline::SystemTime();
+
+        effects[1].startFunc = [this](Effect &effect, Timeline::Span &) {
+            effect.orientation = random.get(0.0f, 2.0f * float(pi));
+        };
+
+        effects[1].calcFunc = [this](Effect &, Timeline::Span &span) {
+            double now = Timeline::SystemTime() - span.time;
+
+            const double speed = 0.25;
+            float walk = (1.0f - static_cast<float>(frac(now * speed)));
+
+            auto calcRingColor = [=](const float4 &pos) {
+                return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
+            };
+
+            auto calcBirdColor = [=](const float4 &pos) {
+                return red_glow.reflect(pos.x + walk);
+            };
+
+            auto iteratePort = [](size_t port, std::function<const float4(const float4 &)> calc) {
+                size_t portLedCount = Leds::instance().portLedCount(port);
+                Leds &leds(Leds::instance());
+                for (size_t d = 0; d < portLedCount ; d++) {
+                    leds.setCol(port, d, calc(Leds::instance().map(port,d)));
+                }
+            };
+
+            iteratePort(0, calcBirdColor);
+            iteratePort(1, calcBirdColor);
+            iteratePort(2, calcBirdColor);
+            iteratePort(3, calcBirdColor);
+            iteratePort(4, calcBirdColor);
+
+            iteratePort(5, calcRingColor);
+        };
+
+        effects[1].doneFunc = [this](Effect &, Timeline::Span &) {
+        };
+
         mainEffect.type = Timeline::Span::Effect;
         mainEffect.time = Timeline::SystemTime();
         mainEffect.duration = std::numeric_limits<double>::infinity();
@@ -524,50 +600,22 @@ void Effects::init() {
                 switch_time = Timeline::SystemTime();
             }
 
-            auto calc_effect = [this, span] (uint32_t effect) {
-                switch (effect) {
-                    case 0:
-                        basic(span);
-                    break;
-                    case 1:
-                        redglow(span);
-                    break;
-                    case 2:
-                        spring(span);
-                    break;
-                    case 3:
-                        summer(span);
-                    break;
-                    case 4:
-                        autumn(span);
-                    break;
-                    case 5:
-                        winter(span);
-                    break;
-                    case 6:
-                        afterrain(span);
-                    break;
-                    case 7:
-                        sunsetsunrise(span);
-                    break;
-                    case 8:
-                        desertdream(span);
-                    break;
-                    case 9:
-                        inthejungle(span);
-                    break;
-                }
-            };
-
             double blend_duration = 2.0;
             double now = Timeline::SystemTime();
             
             if ((now - switch_time) < blend_duration) {
-                calc_effect(previous_effect);
+
+                if (!effects[current_effect].active) {
+                    effects[current_effect].time = now;
+                    effects[current_effect].active = true;
+                    effects[current_effect].startFunc(effects[current_effect], span);
+                }
+
+                effects[previous_effect].calcFunc(effects[previous_effect], span);
 
                 auto colPrev = leds.get();
 
-                calc_effect(current_effect);
+                effects[current_effect].calcFunc(effects[current_effect], span);
 
                 auto colNext = leds.get();
 
@@ -582,7 +630,12 @@ void Effects::init() {
                 leds.set(colNext);
 
             } else {
-                calc_effect(current_effect);
+                if (previous_effect != current_effect &&
+                    effects[previous_effect].active) {
+                    effects[previous_effect].active = false;
+                    effects[previous_effect].doneFunc(effects[previous_effect], span);
+                }
+                effects[current_effect].calcFunc(effects[current_effect], span);
             }
         };
     }
@@ -596,8 +649,8 @@ void Effects::init() {
     static Timeline::Span effectSwitcher;
     if (!Timeline::instance().Scheduled(effectSwitcher)) {
         effectSwitcher.type = Timeline::Span::Interval;
-        effectSwitcher.interval = 20.0;
-        effectSwitcher.time = Timeline::SystemTime() +  20.0; // Initial time
+        effectSwitcher.interval = 10.0;
+        effectSwitcher.time = Timeline::SystemTime() +  10.0; // Initial time
 
         effectSwitcher.startFunc = [](Timeline::Span &) {
             PRINTF("Switch effect at %f\r\n", Timeline::SystemTime());

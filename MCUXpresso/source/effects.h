@@ -33,7 +33,7 @@ public:
 
     void NextEffect() {
         scheduled_effect ++;
-        scheduled_effect %= effect_count;
+        scheduled_effect %= effectsN;
     }
 
 private:
@@ -76,6 +76,16 @@ private:
 
     } random;
 
+    static constexpr size_t effectsN = 2;
+    struct Effect {
+        bool active = false;
+        double time = 0.0;
+        float orientation = 0.0f;
+        std::function<void (Effect &effect, Timeline::Span &span)> startFunc;
+        std::function<void (Effect &effect, Timeline::Span &span)> calcFunc;
+        std::function<void (Effect &effect, Timeline::Span &span)> doneFunc;
+    } effects[effectsN];
+
     void basic(const Timeline::Span &span);
 
     void spring(const Timeline::Span &span);
@@ -92,7 +102,6 @@ private:
     void init();
     bool initialized = false;
 
-    size_t effect_count = 2;
     uint32_t scheduled_effect = 0;
 };
 
