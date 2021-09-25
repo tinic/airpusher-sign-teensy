@@ -49,20 +49,38 @@ static constexpr gradient gradient_rainbow({
 static constexpr gradient red_glow({
     srgb8_stop({0xff,0x00,0x00}, 0.00f),
     srgb8_stop({0xff,0x1f,0x00}, 0.16f),
-    srgb8_stop({0xff,0x00,0x00}, 0.33f),
+    srgb8_stop({0xcf,0x00,0x00}, 0.33f),
     srgb8_stop({0xff,0x00,0x1f}, 0.50f),
     srgb8_stop({0xff,0x00,0x00}, 0.66f),
-    srgb8_stop({0xff,0x0f,0x0f}, 0.83f),
+    srgb8_stop({0xcf,0x0f,0x0f}, 0.83f),
     srgb8_stop({0xff,0x00,0x00}, 1.00f)});
 
 static constexpr gradient yellow_glow({
     srgb8_stop({0xff,0xf0,0x00}, 0.00f),
-    srgb8_stop({0xff,0xff,0x00}, 0.16f),
+    srgb8_stop({0xcf,0xff,0x00}, 0.16f),
     srgb8_stop({0xff,0xf0,0x00}, 0.33f),
     srgb8_stop({0xff,0xf0,0x1f}, 0.50f),
-    srgb8_stop({0xff,0xf0,0x00}, 0.66f),
+    srgb8_stop({0xcf,0xf0,0x00}, 0.66f),
     srgb8_stop({0xff,0xff,0x0f}, 0.83f),
     srgb8_stop({0xff,0xf0,0x00}, 1.00f)});
+
+static constexpr gradient blue_glow({
+    srgb8_stop({0x00,0x00,0xff}, 0.00f),
+    srgb8_stop({0x00,0x1f,0xff}, 0.16f),
+    srgb8_stop({0x1f,0x00,0xff}, 0.33f),
+    srgb8_stop({0x00,0x00,0xcf}, 0.50f),
+    srgb8_stop({0x1f,0x00,0xff}, 0.66f),
+    srgb8_stop({0x00,0x0f,0xcf}, 0.83f),
+    srgb8_stop({0x00,0x00,0xff}, 1.00f)});
+
+static constexpr gradient green_glow({
+    srgb8_stop({0x00,0xf0,0x00}, 0.00f),
+    srgb8_stop({0x0f,0xff,0x00}, 0.16f),
+    srgb8_stop({0x00,0xf0,0x00}, 0.33f),
+    srgb8_stop({0x00,0xf0,0x1f}, 0.50f),
+    srgb8_stop({0x00,0xf0,0x00}, 0.66f),
+    srgb8_stop({0x0f,0xff,0x0f}, 0.83f),
+    srgb8_stop({0x00,0xf0,0x00}, 1.00f)});
 
 static const gradient rainbow_bright_gradient({
     srgb8_stop(0xff0000, 0.00f),
@@ -666,6 +684,7 @@ void Effects::init() {
         Timeline::instance().Add(effectSwitcher);
     }
 
+#if 0
     static Timeline::Span redGlowRepeater;
     if (!Timeline::instance().Scheduled(redGlowRepeater)) {
 
@@ -736,6 +755,153 @@ void Effects::init() {
 
         Timeline::instance().Add(redGlowRepeater);
     };
+#endif  //#if 0
+
+#if 1
+    static Timeline::Span blueGlowRepeater;
+    if (!Timeline::instance().Scheduled(blueGlowRepeater)) {
+
+        blueGlowRepeater.type = Timeline::Span::Interval;
+        blueGlowRepeater.interval = 10.0;
+        blueGlowRepeater.intervalFuzz = 10.00;
+        blueGlowRepeater.time = Timeline::SystemTime() + 10.0; // Initial time
+
+        blueGlowRepeater.startFunc = [this](Timeline::Span &) {
+            static Timeline::Span glowEffect;
+
+            static float orientation = 0.0f;
+
+            orientation = random.get(0.0f, 2.0f * float(pi));
+
+            if (!Timeline::instance().Scheduled(glowEffect)) {
+                glowEffect.type = Timeline::Span::Effect;
+                glowEffect.time = Timeline::SystemTime();
+                glowEffect.duration = 6.0f;
+                glowEffect.calcFunc = [this](Timeline::Span &span, Timeline::Span &below) {
+                    below.Calc();
+                    auto belowCol = Leds::instance().get();
+
+                    double now = Timeline::SystemTime() - span.time;
+
+                    const double speed = 0.25;
+                    float walk = (1.0f - static_cast<float>(frac(now * speed)));
+
+                    auto calcBirdColor = [=](const float4 &pos) {
+                        return blue_glow.repeat(pos.rotate2d(orientation).x + float(now) * 0.1f) * 0.5f;
+                    };
+
+                    auto calcRingColor = [=](const float4 &pos) {
+                        return yellow_glow.repeat(pos.rotate2d(orientation).x + float(now) * 0.1f) * 0.5f;
+                    };
+
+                    double blend_duration = 2.0;
+                    float blend = 1.0f;
+
+                    if (now < blend_duration) {
+                        blend = static_cast<float>(now) * (1.0f / static_cast<float>(blend_duration));
+                    } else if ((span.duration - now) < blend_duration) {
+                        blend = static_cast<float>(span.duration - now) * (1.0f / static_cast<float>(blend_duration));
+                    }
+
+                    auto iteratePort = [=](size_t port, std::function<const float4(const float4 &)> calc) {
+                        Leds &leds(Leds::instance());
+                        size_t portLedCount = leds.portLedCount(port);
+                        for (size_t c = 0; c < portLedCount ; c++) {
+                            leds.setCol(port, c, float4::lerp(belowCol[port][c], calc(leds.map(port, c)), blend));
+                        }
+                    };
+
+                    iteratePort(0, calcBirdColor);
+                    iteratePort(1, calcBirdColor);
+                    iteratePort(2, calcBirdColor);
+                    iteratePort(3, calcBirdColor);
+
+                    iteratePort(4, calcRingColor);
+
+                };
+                glowEffect.commitFunc = [this](Timeline::Span &) {
+                    Leds::instance().convert();
+                };
+                Timeline::instance().Add(glowEffect);
+            }
+        };
+
+        Timeline::instance().Add(blueGlowRepeater);
+    };
+#endif  //#if 0
+
+#if 0
+    static Timeline::Span greenGlowRepeater;
+    if (!Timeline::instance().Scheduled(greenGlowRepeater)) {
+
+        greenGlowRepeater.type = Timeline::Span::Interval;
+        greenGlowRepeater.interval = 10.0;
+        greenGlowRepeater.intervalFuzz = 10.00;
+        greenGlowRepeater.time = Timeline::SystemTime() + 10.0; // Initial time
+
+        greenGlowRepeater.startFunc = [this](Timeline::Span &) {
+            static Timeline::Span glowEffect;
+
+            static float orientation = 0.0f;
+
+            orientation = random.get(0.0f, 2.0f * float(pi));
+
+            if (!Timeline::instance().Scheduled(glowEffect)) {
+                glowEffect.type = Timeline::Span::Effect;
+                glowEffect.time = Timeline::SystemTime();
+                glowEffect.duration = 6.0f;
+                glowEffect.calcFunc = [this](Timeline::Span &span, Timeline::Span &below) {
+                    below.Calc();
+                    auto belowCol = Leds::instance().get();
+
+                    double now = Timeline::SystemTime() - span.time;
+
+                    const double speed = 0.25;
+                    float walk = (1.0f - static_cast<float>(frac(now * speed)));
+
+                    auto calcBirdColor = [=](const float4 &pos) {
+                        return green_glow.repeat(pos.rotate2d(orientation).x + float(now) * 0.1f) * 0.5f;
+                    };
+
+                    auto calcRingColor = [=](const float4 &pos) {
+                        return yellow_glow.repeat(pos.rotate2d(orientation).x + float(now) * 0.1f) * 0.5f;
+                    };
+
+                    double blend_duration = 2.0;
+                    float blend = 1.0f;
+
+                    if (now < blend_duration) {
+                        blend = static_cast<float>(now) * (1.0f / static_cast<float>(blend_duration));
+                    } else if ((span.duration - now) < blend_duration) {
+                        blend = static_cast<float>(span.duration - now) * (1.0f / static_cast<float>(blend_duration));
+                    }
+
+                    auto iteratePort = [=](size_t port, std::function<const float4(const float4 &)> calc) {
+                        Leds &leds(Leds::instance());
+                        size_t portLedCount = leds.portLedCount(port);
+                        for (size_t c = 0; c < portLedCount ; c++) {
+                            leds.setCol(port, c, float4::lerp(belowCol[port][c], calc(leds.map(port, c)), blend));
+                        }
+                    };
+
+                    iteratePort(0, calcBirdColor);
+                    iteratePort(1, calcBirdColor);
+                    iteratePort(2, calcBirdColor);
+                    iteratePort(3, calcBirdColor);
+
+                    iteratePort(4, calcRingColor);
+
+                };
+                glowEffect.commitFunc = [this](Timeline::Span &) {
+                    Leds::instance().convert();
+                };
+                Timeline::instance().Add(glowEffect);
+            }
+        };
+
+        Timeline::instance().Add(greenGlowRepeater);
+    };
+#endif  //#if 0
 
     static Timeline::Span glowRepeater;
     if (!Timeline::instance().Scheduled(glowRepeater)) {
