@@ -523,7 +523,7 @@ void Effects::init() {
             };
 
             auto calcBirdColor = [=](const float4 &pos) {
-                return gradient_rainbow.reflect(pos.rotate2d(effect.orientation).x * 0.25f + float(now) * 0.0625f) * 0.5f;
+                return gradient_rainbow.reflect(pos.rotate2d(effect.orientation).x * 0.25f + float(now) * 0.0125f) * 0.5f;
             };
 
             auto iteratePort = [](size_t port, std::function<const float4(const float4 &)> calc) {
@@ -553,18 +553,15 @@ void Effects::init() {
             effect.orientation = random.get(0.0f, 2.0f * float(pi));
         };
 
-        effects[1].calcFunc = [this](Effect &, Timeline::Span &span) {
+        effects[1].calcFunc = [this](Effect &effect, Timeline::Span &span) {
             double now = Timeline::SystemTime() - span.time;
-
-            const double speed = 0.25;
-            float walk = (1.0f - static_cast<float>(frac(now * speed)));
 
             auto calcRingColor = [=](const float4 &pos) {
                 return gradient_rainbow.repeat(pos.w + float(now) * 0.1f) * 0.5f;
             };
 
             auto calcBirdColor = [=](const float4 &pos) {
-                return red_glow.reflect(pos.x + walk);
+                return gradient_rainbow.reflect(pos.rotate2d(effect.orientation).x * 0.25f + float(now) * 0.0125f) * 0.5f;
             };
 
             auto iteratePort = [](size_t port, std::function<const float4(const float4 &)> calc) {
@@ -649,8 +646,8 @@ void Effects::init() {
     static Timeline::Span effectSwitcher;
     if (!Timeline::instance().Scheduled(effectSwitcher)) {
         effectSwitcher.type = Timeline::Span::Interval;
-        effectSwitcher.interval = 10.0;
-        effectSwitcher.time = Timeline::SystemTime() +  10.0; // Initial time
+        effectSwitcher.interval = 1200.0;
+        effectSwitcher.time = Timeline::SystemTime() +  120.0; // Initial time
 
         effectSwitcher.startFunc = [](Timeline::Span &) {
             PRINTF("Switch effect at %f\r\n", Timeline::SystemTime());
@@ -664,9 +661,9 @@ void Effects::init() {
     if (!Timeline::instance().Scheduled(glowRepeater)) {
 
         glowRepeater.type = Timeline::Span::Interval;
-        glowRepeater.interval = 10.0;
-        glowRepeater.intervalFuzz = 10.00;
-        glowRepeater.time = Timeline::SystemTime() + 10.0; // Initial time
+        glowRepeater.interval = 90.0;
+        glowRepeater.intervalFuzz = 60.00;
+        glowRepeater.time = Timeline::SystemTime() + 60.0; // Initial time
 
         glowRepeater.startFunc = [this](Timeline::Span &) {
 
